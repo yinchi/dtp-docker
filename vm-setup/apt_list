@@ -1,0 +1,28 @@
+# Basic utils
+unzip
+tar
+curl
+wget
+iputils-ping
+htop
+
+# Git
+git
+gh
+pre-commit
+
+# CLI tools
+gum
+python3-click
+just
+
+# Database clients and related tools
+pgcli
+litecli
+mycli
+iredis
+cypher-shell
+mosquitto-clients
+
+# Formatters, linters, and code quality tools
+shfmt
