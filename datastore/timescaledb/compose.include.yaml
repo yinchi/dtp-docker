@@ -4,7 +4,7 @@ services:
     container_name: postgres-timescaledb
     image: timescale/timescaledb:latest-pg17
     ports:
-    - "5432:5432"
+    - "${PG_PORT:-5080}:5432"
     env_file:
     - "../../env/timescaledb.env"
     volumes:
