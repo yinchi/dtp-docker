@@ -17,9 +17,15 @@ python3-click
 just
 
 # Database clients and related tools
+postgresql-client
 pgcli
+
+sqlite3
 litecli
+
+mariadb-client
 mycli
+
 iredis
 cypher-shell
 mosquitto-clients
