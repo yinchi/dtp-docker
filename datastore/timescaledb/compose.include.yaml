@@ -1,0 +1,25 @@
+services:
+  # PostgreSQL with TimescaleDB
+  timescaledb:
+    container_name: postgres-timescaledb
+    image: timescale/timescaledb:latest-pg17
+    ports:
+    - "5432:5432"
+    env_file:
+    - "../../env/timescaledb.env"
+    volumes:
+    - pgdata:/pgdata
+  phppgadmin:
+    container_name: phppgadmin
+    image: phppgadmin
+    build:
+      context: ./phppgadmin
+      dockerfile: Dockerfile
+    volumes:
+    - ./phppgadmin/phppgadmin.conf:/etc/apache2/conf-available/phppgadmin.conf
+    - ./phppgadmin/config.inc.php:/etc/phppgadmin/config.inc.php
+    ports:
+    - "${PGADMIN_PORT:-5080}:80"
+
+volumes:
+  pgdata:

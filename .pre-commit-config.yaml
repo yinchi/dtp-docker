@@ -21,7 +21,7 @@ repos:
     # Permit non-root redirects when using 'sudo' in scripts
     # e.g. `sudo microk8s config > ~/.kube/config`
     # Use `| sudo tee <file> > /dev/null` to write as root
-    args: ['-e', 'SC2024', '-e', 'SC2016']
+    args: ['-e', 'SC2024', '-e', 'SC2016', '-e', 'SC1091']
 - repo: https://github.com/google/yamlfmt
   rev: v0.17.2
   hooks:
