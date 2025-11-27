@@ -1,0 +1,7 @@
+services:
+  # Whoami test service for testing purposes
+  whoami:
+    container_name: whoami
+    image: traefik/whoami:latest
+    ports:
+    - "8080:80"

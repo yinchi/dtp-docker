@@ -1,6 +1,7 @@
 # Includes
 include:
 - datastore/timescaledb/compose.include.yaml
+- infra/whoami/compose.include.yaml
 
 # Network architecture:
 #
