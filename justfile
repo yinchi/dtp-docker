@@ -13,6 +13,15 @@ list:
 
 #############################################################
 
+### ENV ###
+
+# Generate the .env file from .env.template
+gen-env:
+    #!/usr/bin/env bash
+    ./scripts/gen_env.py && sort -o .env .env
+
+#############################################################
+
 ### DOCKER ###
 
 # Launch the docker stack
