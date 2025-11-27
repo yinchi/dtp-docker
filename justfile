@@ -52,30 +52,10 @@ tailscale-serve $port='':
         echo 'Cancelled.'
         exit 1
     fi
-    tailscale serve --bg --http="$PORT" "$PORT"
+    tailscale serve --bg --https="$PORT" "$PORT"
 
 # Stop serving on a given port
 tailscale-unserve $port='':
-    #!/usr/bin/env bash
-    PORT=${port:-$(gum input --prompt="Port: ")}
-    if [ -z "$PORT" ]; then
-        echo 'Cancelled.'
-        exit 1
-    fi
-    tailscale serve --http="$PORT" off
-
-# Serve a port from the current machine (HTTPS)
-tailscale-serve-https $port='':
-    #!/usr/bin/env bash
-    PORT=${port:-$(gum input --prompt="Port: ")}
-    if [ -z "$PORT" ]; then
-        echo 'Cancelled.'
-        exit 1
-    fi
-    tailscale serve --bg --https="$PORT" "$PORT"
-
-# Stop serving on a given port (HTTPS)
-tailscale-unserve-https $port='':
     #!/usr/bin/env bash
     PORT=${port:-$(gum input --prompt="Port: ")}
     if [ -z "$PORT" ]; then
@@ -88,3 +68,15 @@ tailscale-unserve-https $port='':
 tailscale-serve-status:
     #!/usr/bin/env bash
     tailscale serve status
+
+#############################################################
+
+### POSTGRESQL/TIMESCALEDB ###
+
+# pgcli command-line interface for PostgreSQL
+pgcli:
+    #!/usr/bin/env bash
+    # The `datastore/timescaledb/create_dtp.sh` script can also be used to update the `dtp` user
+    # password (the script will print an error for an existing user/database, but continue)
+    source env/timescaledb.env
+    pgcli "postgres://${USER_NAME}:${USER_PASSWORD}@localhost/${USER_DB}"
