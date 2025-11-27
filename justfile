@@ -82,6 +82,10 @@ tailscale-serve-status:
 
 ### POSTGRESQL/TIMESCALEDB ###
 
+init-db:
+    #!/usr/bin/env bash
+    ./datastore/timescaledb/create_dtp.sh
+
 # pgcli command-line interface for PostgreSQL
 pgcli:
     #!/usr/bin/env bash
