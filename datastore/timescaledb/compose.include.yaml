@@ -4,9 +4,9 @@ services:
     container_name: postgres-timescaledb
     image: timescale/timescaledb:latest-pg17
     ports:
-    - "${PG_PORT:-5080}:5432"
-    env_file:
-    - "../../env/timescaledb.env"
+    - "${POSTGRES_PORT:-5432}:5432"
+    environment:
+    - POSTGRES_PASSWORD=${PG_ADMIN_PASSWORD}
     volumes:
     - pgdata:/pgdata
   phppgadmin:
@@ -19,7 +19,7 @@ services:
     - ./phppgadmin/phppgadmin.conf:/etc/apache2/conf-available/phppgadmin.conf
     - ./phppgadmin/config.inc.php:/etc/phppgadmin/config.inc.php
     ports:
-    - "${PGADMIN_PORT:-5080}:80"
+    - "${PHPPGADMIN_PORT:-8080}:80"
 
 volumes:
   pgdata:

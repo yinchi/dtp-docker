@@ -1,87 +1,42 @@
-#!/usr/bin/env -S uv run --package dtp-docker-env-templates
-"""Script to generate .env files from Jinja2 templates.
+#!/usr/bin/env -S uv run
 
-This script processes all .j2 template files in the TEMPLATE_DIR directory,
-renders them using Jinja2, and outputs the resulting .env files to the OUTPUT_DIR directory.
-If an output file already exists, the user is prompted before overwriting it.
-"""
-
-import base64
-import os
 import pathlib
-import subprocess
-
+from pprint import pprint
 import dotenv
-import jinja2
-
-dotenv.load_dotenv()
-
-TEMPLATE_DIR = os.environ.get("TEMPLATE_DIR", "env_templates")
-OUTPUT_DIR = os.environ.get("OUTPUT_DIR", "env")
-
-print("Generating .env files...")
-
-# Find the Git root directory
-
-git_root = subprocess.check_output(["git", "rev-parse", "--show-toplevel"]).strip().decode("utf-8")
-git_root = pathlib.Path(git_root).resolve()
-
-
-def random_b64(len: int) -> str:
-    """Generate a random URL-safe base64-encoded string of specified length.
-
-    Note that the length is rounded up to the nearest multiple of 4, since base64 encoding
-    works in 4-character groups.
-
-    Args:
-        len: Desired length of the output string.
-
-    Returns:
-        A random URL-safe base64-encoded string of at least the specified length.
-    """
-    # Calculate number of 4-character groups needed, rounding up
-    n_groups = (len + 3) // 4
-    # Each group of four base64 characters requires 3 bytes of input
-    n_bytes = n_groups * 3
-    random_bytes = os.urandom(n_bytes)
-    return base64.urlsafe_b64encode(random_bytes).decode("utf-8")
-
+from base64 import urlsafe_b64encode
+from random import randbytes
 
 def main():
-    """Main function to generate .env files from templates."""
-    templates_path = git_root / TEMPLATE_DIR
-    assert templates_path.exists(), f"Templates path does not exist: {templates_path}"
+    """Generate missing environment variables in `.env` file based on `.env.template`."""
+    this_dir = pathlib.Path(__file__).parent
 
-    env_path = git_root / OUTPUT_DIR
-    env_path.mkdir(parents=True, exist_ok=True)
+    # Load environment variables from .env file
+    dotenv_file = (this_dir / '../.env').resolve()
+    values = dotenv.dotenv_values(dotenv_file)
+    # print(values)
 
-    jinja_env = jinja2.Environment(
-        loader=jinja2.FileSystemLoader(str(templates_path)),
-        autoescape=jinja2.select_autoescape(),
-    )
+    template_file = (this_dir / '../.env.template').resolve()
+    template_values = dotenv.dotenv_values(template_file)
+    # print(template_values)
 
-    jinja_env.filters["random_b64"] = random_b64
+    missing_keys = set(template_values.keys()) - set(values.keys())
+    missing_keys = sorted(missing_keys)
+    if not missing_keys:
+        print("No missing keys in .env, nothing to do.")
+        return
 
-    for template_file in templates_path.glob("*.j2"):
-        output_file = env_path / template_file.stem  # Remove .j2 extension
+    print(f"Adding missing keys to .env:")
+    pprint(missing_keys)
 
-        # Prompt before overwriting existing files
-        if output_file.exists():
-            response = input(f"{output_file} already exists. Overwrite? (y/n): ")
-            while response.lower() not in ("y", "n"):
-                response = input("Please enter 'y' or 'n': ")
-            if response.lower() != "y":
-                print(f"Skipping {output_file}")
-                continue
-
-        template = jinja_env.get_template(template_file.name)
-        rendered_content = template.render()
-
-        with open(output_file, "w") as f:
-            f.write(rendered_content)
-
-        print(f"Generated {output_file}")
-
+    # Append missing keys to .env, converting "changeme" to random values
+    with open(dotenv_file, 'a') as f:
+        for key in missing_keys:
+            val = template_values[key]
+            if val is None:
+                val = ""
+            if val == "changeme":
+                val = urlsafe_b64encode(randbytes(12)).decode('utf-8')
+            print(f"{key}={val}", file=f)
 
 if __name__ == "__main__":
     main()

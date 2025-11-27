@@ -4,4 +4,4 @@ services:
     container_name: whoami
     image: traefik/whoami:latest
     ports:
-    - "8080:80"
+    - "${WHOAMI_PORT}:80"

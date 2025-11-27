@@ -18,22 +18,22 @@ list:
 # Launch the docker stack
 docker-up:
     #!/usr/bin/env bash
-    docker compose --env-file env/compose.env up -d
+    docker compose --env-file .env up -d
 
 # Show Docker Compose status
 docker-ps:
     #!/usr/bin/env bash
-    docker compose --env-file env/compose.env ps
+    docker compose --env-file .env ps
 
 # Show the volumes in the Docker Compose configuration
 docker-config-vols:
     #!/usr/bin/env bash
-    docker compose --env-file env/compose.env config | yq '.volumes'
+    docker compose --env-file .env config | yq '.volumes'
 
 # Show the networks in the Docker Compose configuration
 docker-config-nets:
     #!/usr/bin/env bash
-    docker compose --env-file env/compose.env config | yq '.networks'
+    docker compose --env-file .env config | yq '.networks'
 
 # Show the public ports in the Docker Compose
 docker-ports:
