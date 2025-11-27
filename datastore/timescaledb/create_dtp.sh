@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Create the dtp user and database
 
 source "$(git rev-parse --show-toplevel)/env/timescaledb.env"
 
