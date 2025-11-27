@@ -15,6 +15,7 @@ pre-commit
 gum
 python3-click
 just
+fzf
 
 # Database clients and related tools
 postgresql-client
