@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 # Create the dtp user and database
 
-source "$(git rev-parse --show-toplevel)/env/timescaledb.env"
+source "$(git rev-parse --show-toplevel)/.env"
 
 docker exec postgres-timescaledb psql -U postgres -c \
-    "CREATE USER ${USER_NAME};" || true
+    "CREATE USER ${PG_USER};" || true
 docker exec postgres-timescaledb psql -U postgres -c \
-    "ALTER USER ${USER_NAME} WITH PASSWORD '${USER_PASSWORD}';"
+    "ALTER USER ${PG_USER} WITH PASSWORD '${PG_USER_PASSWORD}';"
 docker exec postgres-timescaledb psql -U postgres -c \
-    "CREATE DATABASE ${USER_DB} WITH OWNER ${USER_NAME};" || true
+    "CREATE DATABASE ${PG_DB} WITH OWNER ${PG_USER};" || true
 docker exec postgres-timescaledb psql -U postgres -c \
-    "GRANT ALL ON DATABASE ${USER_DB} TO $USER_NAME;"
+    "GRANT ALL ON DATABASE ${PG_DB} TO $PG_USER;"
