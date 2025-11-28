@@ -13,21 +13,38 @@ list:
 
 #############################################################
 
-### ENV ###
+### ENV and secrets ###
 
 # Generate the .env file from .env.template
 gen-env:
     #!/usr/bin/env bash
     ./scripts/gen_env.py && sort -o .env .env
 
+# Generate a user for Traefik BasicAuth
+htpasswd $user:
+    #!/usr/bin/env bash
+    htpasswd -B infra/traefik/htpasswd $user
+    # Traefik won't re-read the htpasswd file unless we restart the service
+    just docker-restart traefik
+
 #############################################################
 
 ### DOCKER ###
 
-# Launch the docker stack
+# Launch the Docker stack
 docker-up:
     #!/usr/bin/env bash
+    tailscale serve reset
     docker compose --env-file .env up -d
+    just tailscale-traefik
+    # Edit based on which ports to expose, can use `just docker-ports` for discovery
+    echo 5000 5001 | xargs -n1 just tailscale-serve
+
+# Restart a single Docker service
+docker-restart $service:
+    #!/usr/bin/env bash
+    docker compose --env-file .env down "$service"
+    docker compose --env-file .env up "$service" -d
 
 # Show Docker Compose status
 docker-ps:
