@@ -114,5 +114,5 @@ pgcli:
     #!/usr/bin/env bash
     # The `datastore/timescaledb/create_dtp.sh` script can also be used to update the `dtp` user
     # password (the script will print an error for an existing user/database, but continue)
-    source env/timescaledb.env
-    pgcli "postgres://${USER_NAME}:${USER_PASSWORD}@localhost/${USER_DB}"
+    source .env
+    pgcli "postgres://${PG_USER}:${PG_USER_PASSWORD}@localhost/${PG_DB}"
