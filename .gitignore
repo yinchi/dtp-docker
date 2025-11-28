@@ -1,3 +1,9 @@
+# Environment/secrets
 .env
 env/
+htpassword
+
+# Python
+.venv/
 __pycache__/
+.ruff_cache/
