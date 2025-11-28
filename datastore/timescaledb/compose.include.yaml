@@ -9,6 +9,13 @@ services:
       POSTGRES_PASSWORD: ${PG_ADMIN_PASSWORD}
     volumes:
     - pgdata:/pgdata
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "dtp", "-d", "dtp"]
+      interval: 30s
+      timeout: 3s
+      retries: 5
+      start_period: 30s
+      start_interval: 5s
     labels:
       dtp.description: >-
         PostgreSQL with TimescaleDB extension
@@ -24,6 +31,17 @@ services:
     - ./phppgadmin/config.inc.php:/etc/phppgadmin/config.inc.php
     ports:
     - "${PHPPGADMIN_PORT:-8080}:80"
+    depends_on:
+      timescaledb:
+        condition: service_healthy
+        restart: true
+    healthcheck:
+      test: ["CMD", "curl", "-fsSLo", "/dev/null", "http://localhost/phppgadmin"]
+      interval: 30s
+      timeout: 3s
+      retries: 5
+      start_period: 30s
+      start_interval: 5s
     labels:
       dtp.description: >-
         PhpPGAdmin web interface for PostgreSQL

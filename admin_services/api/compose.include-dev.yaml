@@ -1,7 +1,7 @@
 services:
   admin-api:
     container_name: admin-api
-    image: ghcr.io/astral-sh/uv:python3.14-trixie-slim
+    image: ghcr.io/astral-sh/uv:python3.14-trixie
     volumes:
     - ../../admin_services/api:/app/admin_services/api
     - ../../py_common:/app/py_common
@@ -24,6 +24,17 @@ services:
     - bash
     - "-c"
     - "cd /app && uv sync --all-packages && uv run admin-api"
+    depends_on:
+      timescaledb:
+        condition: service_healthy
+        restart: true
+    healthcheck:
+      test: ["CMD", "wget", "-qO", "/dev/null", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 5
+      start_period: 30s
+      start_interval: 5s
     labels:
       dtp.description: FastAPI server for admin functions
       dtp.category: admin_services

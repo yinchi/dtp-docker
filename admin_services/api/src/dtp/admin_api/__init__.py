@@ -7,6 +7,7 @@ from typing import Annotated
 import docker
 import fastapi.cli
 from fastapi import Depends, FastAPI, HTTPException, Request
+from fastapi.responses import PlainTextResponse
 from pydantic_settings import BaseSettings
 
 
@@ -82,6 +83,16 @@ async def check_admin_user(
         raise HTTPException(status_code=401, detail="Unauthorized user")
 
     return user
+
+
+@app.get(
+    "/health",
+    summary="Health check",
+    response_class=PlainTextResponse,
+)
+async def health_check() -> str:
+    """Health check endpoint."""
+    return "OK"
 
 
 @app.get(
