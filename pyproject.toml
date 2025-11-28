@@ -8,4 +8,6 @@ dependencies = [
 
 [tool.uv.workspace]
 members = [
+    "admin_services/api",
+    "py_common",
 ]

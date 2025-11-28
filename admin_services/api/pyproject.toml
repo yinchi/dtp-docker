@@ -1,0 +1,25 @@
+[project]
+name = "dtp-admin-api"
+version = "0.1.0"
+description = "FastAPI server for admin functions"
+readme = "README.md"
+authors = [
+    { name = "Yin-Chi Chan", email = "ycc39@cam.ac.uk" }
+]
+requires-python = ">=3.14"
+dependencies = [
+    "docker>=7.1.0",
+    "dotenv>=0.9.9",
+    "fastapi[standard]>=0.122.0",
+    "pydantic-settings>=2.12.0",
+]
+
+[tool.uv.build-backend]
+module-name = "dtp.admin_api"
+
+[project.scripts]
+admin-api = "dtp.admin_api:main"
+
+[build-system]
+requires = ["uv_build>=0.9.12,<0.10.0"]
+build-backend = "uv_build"
