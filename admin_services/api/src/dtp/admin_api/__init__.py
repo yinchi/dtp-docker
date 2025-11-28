@@ -6,6 +6,8 @@ from typing import Annotated
 
 import docker
 import fastapi.cli
+from dtp.admin_api import models
+from dtp.common import fastapi_text_example
 from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.responses import PlainTextResponse
 from pydantic_settings import BaseSettings
@@ -89,6 +91,7 @@ async def check_admin_user(
     "/health",
     summary="Health check",
     response_class=PlainTextResponse,
+    responses={200: fastapi_text_example("OK")},
 )
 async def health_check() -> str:
     """Health check endpoint."""
@@ -98,6 +101,8 @@ async def health_check() -> str:
 @app.get(
     "/me",
     summary="Get current user",
+    response_model=models.MeResponse,
+    responses={200: models.me_example},
 )
 async def root(
     x_auth_user: Annotated[str, Depends(check_admin_user)] = None,
@@ -107,15 +112,15 @@ async def root(
     Currently, we only return the username from the `x-auth-user` header.
     In the future, additional user details can be fetched from a database.
     """
-    return {
-        "x_auth_user": x_auth_user,
-    }
+    return models.MeResponse(x_auth_user=x_auth_user)
 
 
 @app.get(
     "/docker/containers",
     summary="Get info on Docker containers",
     tags=["Docker Compose"],
+    response_model=models.DockerContainersInfoResponse,
+    responses={200: models.docker_container_info_example},
 )
 async def get_containers(
     _x_auth_user: Annotated[str, Depends(check_admin_user)] = None,
@@ -126,15 +131,18 @@ async def get_containers(
     Platform.
     """
     client = docker.DockerClient(base_url="unix:///var/run/docker.sock")
-    return {
-        container.name: {
-            "status": container.status,
-            "service": container.labels.get("com.docker.compose.service", None),
-            "dtp_labels": {k: v for k, v in container.labels.items() if k.startswith("dtp.")},
+    return models.DockerContainersInfoResponse(
+        containers={
+            container.name: models.DockerContainerInfo(
+                status=container.status,
+                service=container.labels.get("com.docker.compose.service"),
+                dtp_labels={
+                    key: value for key, value in container.labels.items() if key.startswith("dtp.")
+                },
+            )
+            for container in client.containers.list(all=True)
         }
-        for container in client.containers.list()
-        if "dtp-docker" in container.labels.get("com.docker.compose.project", "")
-    }
+    )
 
 
 def main() -> str:

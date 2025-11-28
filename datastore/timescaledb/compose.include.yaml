@@ -3,6 +3,7 @@ services:
   timescaledb:
     container_name: postgres-timescaledb
     image: timescale/timescaledb:latest-pg17
+    restart: always
     ports:
     - "${POSTGRES_PORT:-5432}:5432"
     environment:
@@ -23,6 +24,7 @@ services:
   phppgadmin:
     container_name: phppgadmin
     image: phppgadmin
+    restart: always
     build:
       context: ./phppgadmin
       dockerfile: Dockerfile
