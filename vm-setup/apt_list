@@ -17,6 +17,9 @@ python3-click
 just
 fzf
 
+# Provides htpasswd
+apache2-utils
+
 # Database clients and related tools
 postgresql-client
 pgcli

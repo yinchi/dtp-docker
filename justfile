@@ -53,6 +53,12 @@ docker-ports:
 
 ### TAILSCALE ###
 
+# Serve Traefik
+tailscale-traefik:
+    #!/usr/bin/env bash
+    # Tailscale does TLS termination, so map HTTPS to HTTP
+    tailscale serve --bg --https=443 80
+
 # Serve a port from the current machine
 tailscale-serve $port='':
     #!/usr/bin/env bash

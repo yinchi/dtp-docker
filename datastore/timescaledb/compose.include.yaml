@@ -6,9 +6,13 @@ services:
     ports:
     - "${POSTGRES_PORT:-5432}:5432"
     environment:
-    - POSTGRES_PASSWORD=${PG_ADMIN_PASSWORD}
+      POSTGRES_PASSWORD: ${PG_ADMIN_PASSWORD}
     volumes:
     - pgdata:/pgdata
+    labels:
+      dtp.description: >-
+        PostgreSQL with TimescaleDB extension
+      dtp.category: datastore
   phppgadmin:
     container_name: phppgadmin
     image: phppgadmin
@@ -20,6 +24,11 @@ services:
     - ./phppgadmin/config.inc.php:/etc/phppgadmin/config.inc.php
     ports:
     - "${PHPPGADMIN_PORT:-8080}:80"
+    labels:
+      dtp.description: >-
+        PhpPGAdmin web interface for PostgreSQL
+      dtp.category: datastore
+      dtp.urls.web: ${TAILSCALE_HOST}:${PHPPGADMIN_PORT}/phppgadmin/
 
 volumes:
   pgdata:

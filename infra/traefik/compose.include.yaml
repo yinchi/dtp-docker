@@ -1,0 +1,26 @@
+services:
+  traefik:
+    image: traefik:3
+    container_name: traefik
+    restart: always
+    volumes:
+    - /var/run/docker.sock:/var/run/docker.sock:ro
+    - ./traefik.yml:/etc/traefik/traefik.yml:ro
+    - ./htpasswd:/etc/traefik/htpasswd:ro
+    - ./dynamic.yml:/etc/traefik/dynamic.yml:ro
+    ports:
+    - "${TRAEFIK_PORT}:80"
+    - "${TRAEFIK_DASHBOARD_PORT}:8080"
+    healthcheck:
+      test: ["CMD", "wget", "-qO", "/dev/null", "http://localhost:8080/ping"]
+      interval: 30s
+      timeout: 3s
+      retries: 5
+      start_period: 30s
+      start_interval: 5s
+    labels:
+      dtp.description: >-
+        Traefik reverse proxy for the digital twin platform. Configure this proxy using the `traefik.yml` file.
+      dtp.category: infra
+      dtp.urls.web: ${TAILSCALE_HOST}:${TRAEFIK_PORT}/
+      dtp.urls.admin_dashboard: ${TAILSCALE_HOST}:${TRAEFIK_DASHBOARD_PORT}/

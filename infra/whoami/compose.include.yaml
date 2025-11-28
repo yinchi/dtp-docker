@@ -3,5 +3,12 @@ services:
   whoami:
     container_name: whoami
     image: traefik/whoami:latest
-    ports:
-    - "${WHOAMI_PORT}:80"
+    labels:
+      dtp.description: >-
+        Simple whoami service for testing purposes. Shows information about HTTP requests received.
+      dtp.category: test
+      dtp.urls.web: ${TAILSCALE_HOST}:${TRAEFIK_PORT}/whoami
+      traefik.enable: true
+      traefik.http.routers.whoami.rule: PathPrefix(`/whoami`)
+      traefik.http.routers.whoami.middlewares: auth@file,whoami-stripprefix
+      traefik.http.middlewares.whoami-stripprefix.stripprefix.prefixes: /whoami

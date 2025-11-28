@@ -1,0 +1,8 @@
+# Container-independent dynamic configuration for Traefik
+http:
+  middlewares:
+    # Basic authentication middleware using htpasswd file
+    auth:
+      basicAuth:
+        usersFile: /etc/traefik/htpasswd
+        headerField: X-Auth-User

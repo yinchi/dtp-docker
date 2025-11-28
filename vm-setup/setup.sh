@@ -79,14 +79,14 @@ echo ''
 
 #############################################################
 
-echo '🔨  Configuring software sources...'
-
 echo '🔨  Updating package lists...'
 sudo apt-get update -qq
+echo '🔨  Upgrading packages...'
 sudo apt-get upgrade -yqq
-echo '🔨  Installing necessary packages...'
+echo '🔨  Installing necessary packages for software source management...'
 sudo apt-get install -yqq ca-certificates curl gnupg lsb-release
 
+echo '🔨  Configuring software sources...'
 sudo mkdir -p /etc/apt/keyrings
 
 # Provides `gum` for easier, prettier shell prompts
@@ -115,6 +115,7 @@ echo 'deb [signed-by=/etc/apt/keyrings/neotechnology.gpg] https://debian.neo4j.c
 
 echo '🔨  Updating package lists (again)...'
 sudo apt-get update -qq
+echo '🔨  Upgrading packages (again)...'
 sudo apt-get upgrade -yqq
 
 ##############################################################
