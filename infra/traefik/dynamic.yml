@@ -4,7 +4,7 @@ http:
     # Basic authentication middleware using htpasswd file
     auth:
       forwardAuth:
-        address: "http://forward-auth:8000/token"
+        address: "http://forward-auth:8000/user/me"
         trustForwardHeader: true
         authRequestHeaders:
         - "Authorization"
