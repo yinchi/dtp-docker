@@ -4,9 +4,6 @@ include:
 - infra/traefik/compose.include.yaml
 - infra/whoami/compose.include.yaml
 
-# Dev containers with mounted code, switch to `compose.include.yaml` for deployment
-- admin_services/api/compose.include-dev.yaml
-
 # Network architecture:
 #
 #                  Filtering/validation/

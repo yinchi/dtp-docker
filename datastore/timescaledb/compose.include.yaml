@@ -9,7 +9,7 @@ services:
     environment:
       POSTGRES_PASSWORD: ${PG_ADMIN_PASSWORD}
     volumes:
-    - pgdata:/pgdata
+    - pgdata:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "dtp", "-d", "dtp"]
       interval: 30s
