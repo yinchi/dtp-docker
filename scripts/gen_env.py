@@ -38,7 +38,11 @@ def main():
             if val is None:
                 val = ""
             if val == "changeme":
+                # 12 bytes = 16 base64 chars, suitable for a random password or API key
                 val = urlsafe_b64encode(randbytes(12)).decode("utf-8")
+            if val == "jwt_key":
+                # 24 bytes = 32 base64 chars, the minimum for HS256
+                val = urlsafe_b64encode(randbytes(24)).decode("utf-8")
             print(f"{key}={val}", file=f)
 
 

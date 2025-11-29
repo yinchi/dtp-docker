@@ -3,6 +3,10 @@ http:
   middlewares:
     # Basic authentication middleware using htpasswd file
     auth:
-      basicAuth:
-        usersFile: /etc/traefik/htpasswd
-        headerField: X-Auth-User
+      forwardAuth:
+        address: "http://forward-auth:8000/token"
+        trustForwardHeader: true
+        authRequestHeaders:
+        - "Authorization"
+        authResponseHeaders:
+        - "X-Auth-User-ID"

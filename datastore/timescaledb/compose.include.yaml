@@ -23,7 +23,7 @@ services:
       dtp.category: datastore
   phppgadmin:
     container_name: phppgadmin
-    image: phppgadmin
+    image: yinchi/phppgadmin:latest
     restart: always
     build:
       context: ./phppgadmin
@@ -48,7 +48,7 @@ services:
       dtp.description: >-
         PhpPGAdmin web interface for PostgreSQL
       dtp.category: datastore
-      dtp.urls.web: ${TAILSCALE_HOST}:${PHPPGADMIN_PORT}/phppgadmin/
+      dtp.urls.web: ${DTP_HOST}:${PHPPGADMIN_PORT}/phppgadmin/
 
 volumes:
   pgdata:

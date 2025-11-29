@@ -36,15 +36,15 @@ docker-up:
     #!/usr/bin/env bash
     tailscale serve reset
     docker compose --env-file .env up -d
-    just tailscale-traefik
-    # Edit based on which ports to expose, can use `just docker-ports` for discovery
-    echo 5000 5001 | xargs -n1 just tailscale-serve
+    just tailscale-up
 
 # Restart a single Docker service
 docker-restart $service:
     #!/usr/bin/env bash
     docker compose --env-file .env down "$service"
+    tailscale serve reset
     docker compose --env-file .env up "$service" -d
+    just tailscale-up
 
 # Show Docker Compose status
 docker-ps:
@@ -69,6 +69,12 @@ docker-ports:
 #############################################################
 
 ### TAILSCALE ###
+
+# Start up all Tailscale endpoints
+tailscale-up:
+    #!/usr/bin/env bash
+    tailscale serve --bg --https=443 80
+    echo 5000 5001 | xargs -n1 just tailscale-serve
 
 # Serve Traefik
 tailscale-traefik:

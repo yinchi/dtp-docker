@@ -21,7 +21,7 @@ class Settings(BaseSettings):
     db_name: str = Field(min_length=1)
     db_username: str = Field(min_length=1)
     db_password: str = Field(min_length=1)
-    db_bootstrap_admin_password: str = Field(
+    bootstrap_admin_password: str = Field(
         min_length=1,
         title="DT platform bootstrap password",
         description="Initial password for the 'admin' user used during bootstrapping.",

@@ -1,7 +1,7 @@
 [project]
-name = "dtp-docker-backend"
+name = "dtp-docker-auth"
 version = "0.1.0"
-description = "Python backend for the Digital Twin Platform"
+description = "Authentication module for the Digital Twin Platform"
 readme = "README.md"
 authors = [
     { name = "Yin-Chi Chan", email = "ycc39@cam.ac.uk" }
@@ -9,6 +9,7 @@ authors = [
 requires-python = ">=3.14"
 dependencies = [
     "bcrypt>=5.0.0",
+    "dotenv>=0.9.9",
     "fastapi[standard]>=0.122.0",
     "jose>=1.0.0",
     "jwt-pydantic>=0.0.7",
@@ -23,7 +24,7 @@ dependencies = [
 module-name = "dtp"
 
 [project.scripts]
-api = "dtp.api:main"
+auth = "dtp.auth:main"
 
 [build-system]
 requires = ["uv_build>=0.9.12,<0.10.0"]

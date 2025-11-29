@@ -1,0 +1,33 @@
+services:
+  # FastAPI server for Traefik ForwardAuth
+  forward-auth:
+    container_name: forward-auth
+    image: yinchi/dtp-forward-auth
+    build:
+      # We use the Docker file in the current directory, but need the project root context
+      context: ../..
+      dockerfile: infra/auth/Dockerfile
+    restart: always
+    environment:
+      # Database settings
+      # The service name, not the container name
+      DTP_DB_HOSTNAME: timescaledb
+      DTP_DB_PORT: ${POSTGRES_PORT}
+      DTP_DB_NAME: ${PG_DB}
+      DTP_DB_USERNAME: ${PG_USER}
+      DTP_DB_PASSWORD: ${PG_USER_PASSWORD}
+      # Authentication host settings
+      DTP_AUTH_HOST: ${DTP_HOST}
+      DTP_AUTH_ROOTPATH: /auth
+      DTP_JWT_SECRET_KEY: ${DTP_JWT_SECRET_KEY}
+      # Initial password, the admin user should change it ASAP
+      DTP_BOOTSTRAP_ADMIN_PASSWORD: ${DTP_BOOTSTRAP_ADMIN_PASSWORD}
+    labels:
+      dtp.description: >-
+        Target server for Traefik ForwardAuth.
+      dtp.category: infra
+      dtp.urls.web: ${DTP_HOST}:${TRAEFIK_PORT}/auth
+      traefik.enable: true
+      traefik.http.routers.forward-auth.rule: PathPrefix(`/auth`)
+      traefik.http.routers.forward-auth.middlewares: forward-auth-stripprefix
+      traefik.http.middlewares.forward-auth-stripprefix.stripprefix.prefixes: /auth

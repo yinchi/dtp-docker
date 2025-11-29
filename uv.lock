@@ -5,7 +5,7 @@ requires-python = ">=3.14"
 [manifest]
 members = [
     "dtp-docker",
-    "dtp-docker-backend",
+    "dtp-docker-auth",
 ]
 
 [[package]]
@@ -143,19 +143,14 @@ wheels = [
 name = "dtp-docker"
 version = "0.1.0"
 source = { virtual = "." }
-dependencies = [
-    { name = "dotenv" },
-]
-
-[package.metadata]
-requires-dist = [{ name = "dotenv", specifier = ">=0.9.9" }]
 
 [[package]]
-name = "dtp-docker-backend"
+name = "dtp-docker-auth"
 version = "0.1.0"
-source = { editable = "infra/backend" }
+source = { editable = "infra/auth" }
 dependencies = [
     { name = "bcrypt" },
+    { name = "dotenv" },
     { name = "fastapi", extra = ["standard"] },
     { name = "jose" },
     { name = "jwt-pydantic" },
@@ -169,6 +164,7 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "bcrypt", specifier = ">=5.0.0" },
+    { name = "dotenv", specifier = ">=0.9.9" },
     { name = "fastapi", extras = ["standard"], specifier = ">=0.122.0" },
     { name = "jose", specifier = ">=1.0.0" },
     { name = "jwt-pydantic", specifier = ">=0.0.7" },
