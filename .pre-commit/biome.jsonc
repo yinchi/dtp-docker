@@ -1,0 +1,16 @@
+{
+  "formatter": {
+    "lineWidth": 100,
+    "lineEnding": "lf"
+  },
+  "linter": {
+    "rules": {
+      "a11y": {
+        "useButtonType": "off"
+      },
+      "style": {
+        "noNonNullAssertion": "off"
+      }
+    }
+  }
+}

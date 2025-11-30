@@ -39,3 +39,12 @@ repos:
   - id: ruff-format
     types_or: [python, pyi]
     args: [--config, '.pre-commit/ruff.toml']
+
+- repo: local
+  hooks:
+  - id: local-biome-check
+    name: biome check
+    entry: bunx biome check --config-path .pre-commit/biome.jsonc --write --files-ignore-unknown=true --no-errors-on-unmatched
+    language: system
+    types: [text]
+    files: "^infra/frontend/"
