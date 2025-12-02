@@ -1,10 +1,9 @@
 """Backend API for the Digital Twin Platform (DTP)."""
 
 from contextlib import asynccontextmanager
-from pprint import pprint
 from time import time
 from typing import Annotated, Literal
-from uuid import UUID, uuid7
+from uuid import NIL, UUID, uuid7
 
 from dotenv import find_dotenv
 from fastapi import Depends, FastAPI, HTTPException, Response, status
@@ -18,8 +17,13 @@ from pydantic_settings import BaseSettings
 from sqlmodel import Session, select
 
 from dtp.auth.db import check_password, get_session, setup_db
-from dtp.auth.db import settings as db_settings
 from dtp.models import users
+
+BAD_USER_HEADERS = {
+    "WWW-Authenticate": "Bearer",
+    "X-Auth-User-ID": NIL.hex,
+    "X-Auth-Roles": "",
+}
 
 
 class JWTSettings(BaseSettings):
@@ -163,20 +167,14 @@ def login(
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect username or password",
-            headers={
-                "WWW-Authenticate": "Bearer",
-                "X-Auth-User-ID": "nobody",
-            },
+            headers=BAD_USER_HEADERS,
         )
 
     if not check_password(form_data.password, user.password_hash):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect username or password",
-            headers={
-                "WWW-Authenticate": "Bearer",
-                "X-Auth-User-ID": "nobody",
-            },
+            headers=BAD_USER_HEADERS,
         )
 
     # Generate a JWT for the authenticated user
@@ -217,19 +215,13 @@ class CheckRole:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Token has expired",
-                headers={
-                    "WWW-Authenticate": "Bearer",
-                    "X-Auth-User-ID": "nobody",
-                },
+                headers=BAD_USER_HEADERS,
             )
         except JOSEError:  # Catch all other JWT-related errors
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid token",
-                headers={
-                    "WWW-Authenticate": "Bearer",
-                    "X-Auth-User-ID": "nobody",
-                },
+                headers=BAD_USER_HEADERS,
             )
 
         user_id = UUID(jwt.sub)
@@ -241,16 +233,18 @@ class CheckRole:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="User not found",
-                headers={"WWW-Authenticate": "Bearer"},
+                headers=BAD_USER_HEADERS,
             )
 
         if self.required_role and self.required_role not in [role.role_name for role in user.roles]:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Insufficient permissions",
+                headers=BAD_USER_HEADERS,
             )
 
-        response.headers["X-Auth-User-ID"] = str(user.user_id)
+        response.headers["X-Auth-User-ID"] = user.user_id.hex
+        response.headers["X-Auth-Roles"] = ",".join(role.role_name for role in user.roles)
 
         return user
 
@@ -279,10 +273,3 @@ def get_current_user_info(
         user_name=user.user_name,
         roles=[role.role_name for role in user.roles],
     )
-
-
-def main():
-    """Main entrypoint."""
-    # For now, just confirm that we can load settings.
-    pprint(db_settings.model_dump(mode="json"))
-    # TODO: set argv[] and call fastapi.cli.main()

@@ -2,6 +2,7 @@ import "@mantine/core/styles.css";
 import { Stack, Text, Title } from "@mantine/core";
 import MyAppShell from "./MyAppShell";
 
+/** Top-level React component for the main webpage. */
 function App() {
 	return (
 		<MyAppShell>
@@ -10,6 +11,7 @@ function App() {
 	);
 }
 
+/** Main content for the main webpage. */
 function Main() {
 	return (
 		<Stack m={0} p={0} gap={"md"}>
