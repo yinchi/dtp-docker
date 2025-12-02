@@ -23,42 +23,53 @@ function App() {
  */
 function Main() {
 	const [promise, setPromise] = useState<Promise<ReactNode> | null>(null);
-	const [nClicks, setNClicks] = useState<number>(0);
+	const [, setNClicks] = useState<number>(0);
 	const [loading, setLoading] = useState(false);
 
-	/** Calculate the result of clicking the Button. */
+	/** Calculate the result of clicking the Button.
+	 *
+	 * Returns a component to be rendered, or `null` if we redirect to the main page.
+	 */
 	async function getClickResult(nClicks: number): Promise<ReactNode> {
 		// TODO: CODE TO HANDLE LOGIN GOES HERE
 
-		// Artificial delay to simulate a fetch()
+		// Artificial delay to simulate a fetch() for login purposes
 		await new Promise((resolve) => setTimeout(resolve, 500));
 
 		// Return Text component based on value of nClicks
-		if (nClicks % 2 === 0) {
+		console.log(nClicks);
+		if (nClicks % 2 === 1) {
+			// Intentionally fail the first time for testing purposes
 			return (
 				<Text fw={700} c={"red"}>
 					{"An error occured!"}
 				</Text>
 			);
 		} else {
-			return <Text>{"Success!"}</Text>;
+			// Process the sucessfull "login" and redirect (return a dummy value)
+			window.location.href = "/";
+			return null;
 		}
 	}
 
 	/** Callback for whenever the Button is clicked. */
 	function handleClick(): void {
-		setNClicks(nClicks + 1);
-		setPromise(
-			new Promise<ReactNode>((resolve) => {
-				setLoading(true);
-				resolve(
-					getClickResult(nClicks).then((value) => {
+		setNClicks((oldNClicks: number) => {
+			const newNClicks = oldNClicks + 1;
+
+			// Callback in our setter lambda to actually trigger `getClickResult`
+			setPromise(
+				new Promise<ReactNode>((resolve) => {
+					setLoading(true);
+					getClickResult(newNClicks).then((value) => {
 						setLoading(false);
-						return value;
-					}),
-				);
-			}),
-		);
+						resolve(value);
+					});
+				}),
+			);
+
+			return newNClicks;
+		});
 	}
 
 	return (
