@@ -15,10 +15,11 @@ function App() {
 /**
  * Main content for the login webpage.
  *
- * Uses two States:
- * - promise: a new timeout Promise is created on each button click, forcing refresh of the
- *     MessageContainer
+ * Uses the following States:
+ * - promise: a new Promise is created on each button click, forcing refresh of the
+ *     ClickResultContainer
  * - nClicks: for demo purposes, the app alternates between successful and failure callbacks
+ * - loading: used to disable the button when a callback is processing.
  */
 function Main() {
 	const [promise, setPromise] = useState<Promise<ReactNode> | null>(null);
