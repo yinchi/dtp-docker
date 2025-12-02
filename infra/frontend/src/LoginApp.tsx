@@ -21,22 +21,22 @@ function App() {
  * - nClicks: for demo purposes, the app alternates between successful and failure callbacks
  */
 function Main() {
-	const [promise, setPromise] = useState<Promise<void> | null>(null);
+	const [promise, setPromise] = useState<Promise<ReactNode> | null>(null);
 	const [nClicks, setNClicks] = useState<number>(0);
-	const [message, setMessage] = useState<ReactNode>(null);
+	const [loading, setLoading] = useState(false);
 
-	/** Calculate the message contents. */
-	async function getStatusMessage(nClicks: number): Promise<ReactNode> {
+	/** Calculate the result of clicking the Button. */
+	async function getClickResult(nClicks: number): Promise<ReactNode> {
 		// TODO: CODE TO HANDLE LOGIN GOES HERE
 
-		// Artificial delay
-		await new Promise((resolve) => setTimeout(resolve, 1000));
+		// Artificial delay to simulate a fetch()
+		await new Promise((resolve) => setTimeout(resolve, 500));
 
 		// Return Text component based on value of nClicks
 		if (nClicks % 2 === 0) {
 			return (
-				<Text fw={"bold"} c={"red"}>
-					{"Fail!"}
+				<Text fw={700} c={"red"}>
+					{"An error occured!"}
 				</Text>
 			);
 		} else {
@@ -45,17 +45,17 @@ function Main() {
 	}
 
 	/** Callback for whenever the Button is clicked. */
-	async function handleClick(): Promise<void> {
+	function handleClick(): void {
 		setNClicks(nClicks + 1);
 		setPromise(
-			new Promise<void>((resolve) => {
-				getStatusMessage(nClicks).then((msg) => {
-					// TODO: CODE TO HANDLE LOGIN RESULT GOES HERE
-					setMessage(msg);
-
-					// Mark Promise as resolved
-					resolve();
-				});
+			new Promise<ReactNode>((resolve) => {
+				setLoading(true);
+				resolve(
+					getClickResult(nClicks).then((value) => {
+						setLoading(false);
+						return value;
+					}),
+				);
 			}),
 		);
 	}
@@ -64,33 +64,25 @@ function Main() {
 		<Stack m={0} p={0} gap={"md"}>
 			<Title order={1}>Login</Title>
 			<Group>
-				<Button onClick={handleClick}>Click me!</Button>
+				<Button onClick={handleClick} disabled={loading}>
+					Click me!
+				</Button>
 			</Group>
-			{promise && <MessageContainer message={message} promise={promise} />}
+			{promise && <ClickResultContainer promise={promise} />}
 		</Stack>
 	);
 }
 
-function MessageContainer({
-	message,
-	promise,
-}: {
-	messageError?: Error;
-	message: ReactNode;
-	promise: Promise<void>;
-}) {
+function ClickResultContainer({ promise }: { promise: Promise<ReactNode> }) {
 	return (
-		// Reset the ErrorBoundary when a new Promise is passed, i.e. when the button is clicked.
-		// This triggers generation of a new Message.
-		<Suspense fallback={<p>⌛Downloading message...</p>}>
-			<Message message={message} promise={promise} />
+		<Suspense fallback={<Text>⌛Logging in...</Text>}>
+			<ClickResult promise={promise} />
 		</Suspense>
 	);
 }
 
-function Message({ message, promise }: { message: ReactNode; promise: Promise<void> }) {
-	use(promise);
-	return message;
+function ClickResult({ promise }: { promise: Promise<ReactNode> }) {
+	return use(promise);
 }
 
 export default App;
