@@ -5,6 +5,7 @@ curl
 wget
 iputils-ping
 htop
+eza
 
 # Git
 git
