@@ -1,0 +1,23 @@
+services:
+  # Static server for the DT platform frontend
+  frontend:
+    container_name: frontend
+    image: yinchi/dtp-frontend
+    build: .
+    restart: always
+    environment:
+      SERVER_HEALTH: true
+    healthcheck:
+      test: ["CMD", "wget", "-qO", "/dev/null", "http://localhost/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 5
+      start_period: 30s
+      start_interval: 5s
+    labels:
+      dtp.description: >-
+        Static server for the DT platform frontend.
+      dtp.category: infra
+      dtp.urls.web: ${DTP_HOST}:${TRAEFIK_PORT}/
+      traefik.enable: true
+      traefik.http.routers.frontend.rule: PathPrefix(`/`)

@@ -2,6 +2,7 @@
 include:
 - datastore/timescaledb/compose.include.yaml
 - infra/auth/compose.include.yaml
+- infra/frontend/compose.include.yaml
 - infra/traefik/compose.include.yaml
 - infra/whoami/compose.include.yaml
 
