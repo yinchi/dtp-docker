@@ -22,6 +22,13 @@ services:
       DTP_JWT_SECRET_KEY: ${DTP_JWT_SECRET_KEY}
       # Initial password, the admin user should change it ASAP
       DTP_BOOTSTRAP_ADMIN_PASSWORD: ${DTP_BOOTSTRAP_ADMIN_PASSWORD}
+    healthcheck:
+      test: ["CMD", "wget", "-qO", "/dev/null", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 5
+      start_period: 30s
+      start_interval: 5s
     labels:
       dtp.description: >-
         Target server for Traefik ForwardAuth.
