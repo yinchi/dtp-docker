@@ -12,33 +12,30 @@ function App() {
 	);
 }
 
-/**
- * Main content for the login webpage.
- *
- * Uses the following States:
- * - promise: a new Promise is created on each button click, forcing refresh of the
- *     ClickResultContainer
- * - nClicks: for demo purposes, the app alternates between successful and failure callbacks
- * - loading: used to disable the button when a callback is processing.
- */
+/** Main content for the login webpage. */
 function Main() {
+	// A new `Promise` is created on each button click, forcing refresh of the ClickResultContainer
 	const [promise, setPromise] = useState<Promise<ReactNode> | null>(null);
+
+	// Number of times the button has been clicked
 	const [, setNClicks] = useState<number>(0);
+
+	// Used to disable the button when a callback is processing
 	const [loading, setLoading] = useState(false);
 
 	/** Calculate the result of clicking the Button.
 	 *
-	 * Returns a component to be rendered, or `null` if we redirect to the main page.
+	 * @param fail Intentionally render a failure result if set to `true` (for testing).
+	 * @returns A component to be rendered, or `null` if we redirect to the main page.
 	 */
-	async function getClickResult(nClicks: number): Promise<ReactNode> {
+	async function getClickResult({ fail }: { fail: boolean }): Promise<ReactNode> {
 		// TODO: CODE TO HANDLE LOGIN GOES HERE
 
 		// Artificial delay to simulate a fetch() for login purposes
 		await new Promise((resolve) => setTimeout(resolve, 500));
 
 		// Return Text component based on value of nClicks
-		console.log(nClicks);
-		if (nClicks % 2 === 1) {
+		if (fail) {
 			// Intentionally fail the first time for testing purposes
 			return (
 				<Text fw={700} c={"red"}>
@@ -61,7 +58,8 @@ function Main() {
 			setPromise(
 				new Promise<ReactNode>((resolve) => {
 					setLoading(true);
-					getClickResult(newNClicks).then((value) => {
+					// Intentionally fail the first time for testing purposes
+					getClickResult({ fail: newNClicks === 1 }).then((value) => {
 						setLoading(false);
 						resolve(value);
 					});
@@ -85,6 +83,7 @@ function Main() {
 	);
 }
 
+/** Suspense component (wrapper) to show loading message for the ClickResult component */
 function ClickResultContainer({ promise }: { promise: Promise<ReactNode> }) {
 	return (
 		<Suspense fallback={<Text>⌛Logging in...</Text>}>
@@ -93,6 +92,9 @@ function ClickResultContainer({ promise }: { promise: Promise<ReactNode> }) {
 	);
 }
 
+/** Shows the result of a button click.
+ *
+ * Suspends due to `use`, wrap this in a `Suspense` element to show "loading" fallback. */
 function ClickResult({ promise }: { promise: Promise<ReactNode> }) {
 	return use(promise);
 }
