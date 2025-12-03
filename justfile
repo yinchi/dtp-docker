@@ -51,6 +51,11 @@ docker-ps:
     #!/usr/bin/env bash
     docker compose --env-file .env ps
 
+# Show the public ports in the current Docker instance (actual instance, not config)
+docker-ports:
+    #!/usr/bin/env bash
+    docker compose ps --format json | yq -p=json '{.Name: (.Ports | split(", ") | filter(test("0.0.0.0") ))} | . as $item ireduce ({}; . * $item)'
+
 # Show the volumes in the Docker Compose configuration
 docker-config-vols:
     #!/usr/bin/env bash
@@ -61,10 +66,16 @@ docker-config-nets:
     #!/usr/bin/env bash
     docker compose --env-file .env config | yq '.networks'
 
-# Show the public ports in the Docker Compose
-docker-ports:
+# Show service healthchecks in the Docker Compose configuration
+docker-config-healthchecks:
     #!/usr/bin/env bash
-    docker compose ps --format json | yq -p=json '{.Name: (.Ports | split(", ") | filter(test("0.0.0.0") ))} | . as $item ireduce ({}; . * $item)'
+    docker compose config | yq '.services[] | {key: .healthcheck.test // [] | join(" ")}'
+
+# Show location of config files for Docker Compose
+docker-config-ls:
+    #!/usr/bin/env bash
+    # Any file named [foo.][bar.]compose[.baz].yaml will be included (.yml also accepted)
+    find . -regextype posix-extended -regex '.*/(.*\.)*compose(\..*)*\.(ya?ml)$'
 
 #############################################################
 
