@@ -123,10 +123,8 @@ app.add_middleware(
     allow_origins=[
         "http://localhost:5173",  # Development server for Vite frontend
         "http://dtp-docker:5173",  # Development server for Vite frontend (LAN or mDNS)
-        f"{dtp_host}:5173",  # Development server for Vite frontend (external)
         "http://localhost:8000",  # Development server for backend API
         "http://dtp-docker:8000",  # Development server for backend API (LAN or mDNS)
-        f"{dtp_host}:8000",  # Development server for backend API (external)
         "http://localhost",  # Traefik proxy for Docker deployment
         "http://dtp-docker",  # Traefik proxy for Docker deployment (LAN or mDNS)
         dtp_host,  # Traefik proxy for Docker deployment (external)
