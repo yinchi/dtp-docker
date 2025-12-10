@@ -2,18 +2,18 @@ import { AppShell, Button, Group, MantineProvider, Text } from "@mantine/core";
 import { useCallback, useEffect, useState } from "react";
 import { hostURL } from "../config";
 
+/**
+ * A display wrapper using Mantine's AppShell with a predefined header and footer.
+ *
+ * Also wraps the AppShell in a MantineProvider so that the full page can be rendered in
+ * a single MyAppShell component.
+ *
+ */
 function MyAppShell({ children }: { children: React.ReactNode }) {
-	/**
-	 * A display wrapper using Mantine's AppShell with a predefined header and footer.
-	 *
-	 * Also wraps the AppShell in a MantineProvider so that the full page can be rendered in
-	 * a single MyAppShell component.
-	 *
-	 * @param main The main contents of the page to be displayed.
-	 */
 	const headerHeight = "calc(1rem * var(--mantine-line-height-xl) + 2 * var(--mantine-spacing-md))";
 	const footerHeight = "calc(1rem * var(--mantine-line-height-md) + 2 * var(--mantine-spacing-md))";
 
+	/** JSON object structure for the `/auth/user/me` API endpoint. */
 	interface User {
 		user_id: string;
 		user_name: string;
@@ -106,10 +106,11 @@ function MyAppShell({ children }: { children: React.ReactNode }) {
 	);
 }
 
+/** Copyright text for the footer.
+ *
+ * @param year The current year.
+ */
 function Copyright({ year }: { year: number }) {
-	/**
-	 * Displays "{year}" or "{year}-{currentYear}" depending on the current year.
-	 */
 	const currentYear = new Date().getFullYear();
 	return currentYear === year ? (
 		<>&copy; {year}</>
