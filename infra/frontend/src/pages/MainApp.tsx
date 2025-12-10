@@ -1,9 +1,9 @@
 import "@mantine/core/styles.css";
 import { Stack, Text, Title } from "@mantine/core";
-import MyAppShell from "./MyAppShell";
+import MyAppShell from "../components/MyAppShell";
 
 /** Top-level React component for the main webpage. */
-function App() {
+function MainApp() {
 	return (
 		<MyAppShell>
 			<Main />
@@ -22,4 +22,4 @@ function Main() {
 	);
 }
 
-export default App;
+export default MainApp;
