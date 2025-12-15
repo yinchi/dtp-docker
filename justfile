@@ -84,24 +84,13 @@ docker-config-ls:
 # Start up all Tailscale endpoints
 tailscale-up:
     #!/usr/bin/env bash
+    # Traefik (443 -> 80)
     tailscale serve --bg --https=443 80
-    echo 5000 5001 | xargs -n1 just tailscale-serve
-
-# Serve Traefik
-tailscale-traefik:
-    #!/usr/bin/env bash
-    # Tailscale does TLS termination, so map HTTPS to HTTP
-    tailscale serve --bg --https=443 80
-
-# Serve a port from the current machine
-tailscale-serve $port='':
-    #!/usr/bin/env bash
-    PORT=${port:-$(gum input --prompt="Port: ")}
-    if [ -z "$PORT" ]; then
-        echo 'Cancelled.'
-        exit 1
-    fi
-    tailscale serve --bg --https="$PORT" "$PORT"
+    # Traefik Dashboard (5000)
+    # PhpPgAdmin (5001)
+    echo -n 5000 5001 | xargs -d' ' -I{} tailscale serve --bg --https="{}" "{}"
+    # Mosquitto MQTT Broker (1883), TCP
+    tailscale serve --bg --tcp=1883 tcp://localhost:1883
 
 # Stop serving on a given port
 tailscale-unserve $port='':

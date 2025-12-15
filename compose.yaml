@@ -1,33 +1,14 @@
 # Includes
 include:
+- dataingress/mosquitto/compose.include.yaml
 - datastore/timescaledb/compose.include.yaml
 - infra/auth/compose.include.yaml
 - infra/frontend/compose.include.yaml
 - infra/traefik/compose.include.yaml
 - infra/whoami/compose.include.yaml
 
-# Network architecture:
-#
-#                  Filtering/validation/
-#  IOT devices      forwarding service    Internal services
-#        \            /      \              /
-#         \          /        \            /
-#          IOT network        Bridge network
 networks:
   # Default network for services
   default:
     name: dtp-docker-net
-    driver: bridge
-
-  # Network for IoT devices
-  iot:
-    name: dtp-docker-net-iot
-    driver: bridge
-    attachable: true
-
-  # Bridge network between the IoT network and internal services.
-  # There should be a service to filter MQTT messages, validate payloads,
-  # and forward to internal services.
-  iot-bridge:
-    name: dtp-docket-net-iot-bridge
     driver: bridge

@@ -5,8 +5,13 @@ services:
     restart: always
     volumes:
     - /var/run/docker.sock:/var/run/docker.sock:ro
-    - ./traefik.yml:/etc/traefik/traefik.yml:ro
-    - ./dynamic.yml:/etc/traefik/dynamic.yml:ro
+    configs:
+    - source: traefik_main_config
+      target: /etc/traefik/traefik.yml
+      mode: 0444
+    - source: traefik_dynamic_config
+      target: /etc/traefik/dynamic.yml
+      mode: 0444
     ports:
     - "${TRAEFIK_PORT}:80"
     - "${TRAEFIK_DASHBOARD_PORT}:8080"
@@ -23,3 +28,9 @@ services:
       dtp.category: infra
       dtp.urls.web: ${DTP_HOST}:${TRAEFIK_PORT}/
       dtp.urls.admin_dashboard: ${DTP_HOST}:${TRAEFIK_DASHBOARD_PORT}/
+
+configs:
+  traefik_dynamic_config:
+    file: ./dynamic.yml
+  traefik_main_config:
+    file: ./traefik.yml
