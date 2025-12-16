@@ -13,7 +13,7 @@ services:
       gid: '1883'
       mode: 0444
     healthcheck:
-      test: ["CMD", "mosquitto_sub", "-h", "localhost", "-p", "1883", "-t", "$$SYS/broker/version", "-C", "1", "-W", "2"]
+      test: ["CMD", "mosquitto_sub", "-h", "localhost", "-p", "1883", "-t", "$$SYS/broker/version", "-C", "1", "-W", "2", "-i", "docker-qhealthcheck"]
       interval: 30s
       timeout: 3s
       retries: 5
