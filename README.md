@@ -1,28 +1,29 @@
-# vm-setup: Scripts for setting up a new virtual machine
+# DTP-Docker: Docker Compose stack for a Digital Twin platform (DTP)
 
-This repo contains scripts for setting up a new Ubuntu virtual machine, with optional installation of Docker and Bun (Javascript/Typescript runtime).
+This project has been tested on a VM running Ubuntu 24.04 LTS.  The code in this project assumes a Debian-based environment (`bash` shell & `apt` package manager).
 
-Included packages include (but are not limited to):
+## Setup
 
-- CLI database tools: `pgcli`, `cypher-shell`, etc.
-- Redis CLI tool `iredis`
-- `mosquitto_clients`: provides `mosquitto_pub` and `mosquitto_sub`
-- `just`: for organizing project scripts
+The preferred method is to run the Docker Stack inside a Ubuntu or Debian VM, so that supporting software can be easily installed.  For example, [`yinchi/multipass_setup`](https://github.com/yinchi/multipass_setup) sets up Multipass VMs with Git and gh (the GitHub CLI) preconfigured, using the configured bridge network setup.
 
-Packages available via `apt` are listed in `apt_list`; however, some packages that are installed manually or via `snap` are specified directly in `setup.sh` or another bash script.
+After setting up Git and gh, clone this repository and:
 
-## Usage
+1. Run `vm-setup/setup.sh` to install required packages.
+2. Source `scripts/aliases.sh` to load Git and bash aliases for this project.  Alternatively, you may copy the bash portion of this script to `~/.bashrc` or `~/.bash_aliases`.
+3. Source `scripts/just_completions.sh` to set up completions for [Just](https://just.systems/man/en/).  You can edit your `~/.bashrc` to source this script automatically for each new shell session.
+4. Run `scripts/gen_env.py` to generate a `.env` file.  This file is automatically read by Docker Compose unless overriden.
+5. Connect to a tailnet; see the "Tailscale" section below.
+6. For local development, run `uv sync --all-packages` to set up the Python virtual environment (managed by `uv`).
+7. Start up **only** the main database: `docker compose up timescaledb -d`
+8. Create the `dtp` user and database using the `datastore/timescaledb/create_dtp.sh` script.
+9. `docker compose down`
+10. Launch the full DTP stack with `just docker-up`.
 
-This repo is intended for use alongside `yinchi/multipass_setup`.
+### Tailscale
 
-1. Clone the `yinchi/multipass_setup` repo on your host machine.
-2. `cd` into the newly created `multipass_setup` directory.
-3. Run `./setup.sh` to set up Multipass and other required packages.
-4. Run `./new_instance.sh` to create a new VM; use `./new_instance -h` to see command syntax and options.  The script should also set up `git` and the `gh` CLI tool on the new VM.
-5. On GitHub, create a **new** repo from the `yinchi/vm-setup` template.
-6. Clone your new repo to the VM.  You can use `gh repo clone`.
-7. Run `vm-setup/setup.sh` on the VM.
-
-## Use as a template repository
-
-This repo can be used as a template repository, thus ensuring that projects can quickly setup an initial set of development tools.  All scripts and configuration files are located in `vm-setup/` for isolation from new project code.
+We use [Tailscale](https://tailscale.com/kb/1151/what-is-tailscale) to expose services within a virtual private network.  Assuming we have a tailnet, run the following on the new VM:
+```bash
+curl -fsSL https://tailscale.com/install.sh | sh
+sudo tailscale up
+```
+Follow the prompts to authorize the new VM and add it to the tailnet.
