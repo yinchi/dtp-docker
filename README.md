@@ -22,8 +22,10 @@ After setting up Git and gh, clone this repository and:
 ### Tailscale
 
 We use [Tailscale](https://tailscale.com/kb/1151/what-is-tailscale) to expose services within a virtual private network.  Assuming we have a tailnet, run the following on the new VM:
+
 ```bash
 curl -fsSL https://tailscale.com/install.sh | sh
 sudo tailscale up
 ```
+
 Follow the prompts to authorize the new VM and add it to the tailnet.

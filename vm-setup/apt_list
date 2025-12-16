@@ -18,6 +18,9 @@ python3-click
 just
 fzf
 
+# Node.js runtime
+nodejs
+
 # Provides htpasswd
 apache2-utils
 
