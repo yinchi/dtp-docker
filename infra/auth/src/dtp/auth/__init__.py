@@ -6,7 +6,7 @@ from typing import Annotated, Literal
 from uuid import NIL, UUID, uuid7
 
 from dotenv import find_dotenv
-from fastapi import Depends, FastAPI, HTTPException, Response, status
+from fastapi import Depends, FastAPI, HTTPException, Request, Response, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import PlainTextResponse
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
@@ -106,6 +106,17 @@ app = FastAPI(
     },
 )
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+
+
+@app.middleware("http")
+async def disable_caching(request: Request, call_next):
+    """Middleware to disable caching for all responses."""
+    response = await call_next(request)
+    response.headers["Cache-Control"] = "no-store, max-age=0"
+    response.headers["Pragma"] = "no-cache"
+    response.headers["Expires"] = "0"
+    return response
+
 
 # Configure CORS middleware
 #
@@ -261,11 +272,9 @@ class UserInfoResponse(BaseModel):
 )
 def get_current_user_info(
     user: Annotated[users.User, Depends(CheckRole(None))],
-    session: Annotated[Session, Depends(get_session)],
 ) -> UserInfoResponse:
     """Endpoint to get current user info."""
-    query = select(users.User).where(users.User.user_name == "admin")
-    user = session.exec(query).one()
+    # CheckRole(None) ensures the user is authenticated, so just return the user info from there
     return UserInfoResponse(
         user_id=str(user.user_id),
         user_name=user.user_name,
