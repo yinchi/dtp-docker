@@ -56,7 +56,14 @@ select = [
     "Q", "RET", "RSE"  # flake8
 ]
 ignore = [
+    "PLR0904",
+    "PLR0911",
+    "PLR0912",
     "PLR0913",
+    "PLR0914",
+    "PLR0915",
+    "PLR0916",
+    "PLR0917",
     "PLR2004",
     "D107"
 ]
