@@ -10,3 +10,4 @@ http:
         - "Authorization"
         authResponseHeaders:
         - "X-Auth-User-ID"
+        - "X-Auth-Roles"
