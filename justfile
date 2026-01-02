@@ -35,7 +35,7 @@ htpasswd $user:
 docker-up:
     #!/usr/bin/env bash
     tailscale serve reset
-    docker compose --env-file .env up -d
+    docker compose --env-file .env up -d --remove-orphans
     just tailscale-up
 
 # Restart a single Docker service
@@ -43,7 +43,7 @@ docker-restart $service:
     #!/usr/bin/env bash
     docker compose --env-file .env down "$service"
     tailscale serve reset
-    docker compose --env-file .env up "$service" -d
+    docker compose --env-file .env up "$service" -d  --remove-orphans
     just tailscale-up
 
 # Show Docker Compose status
