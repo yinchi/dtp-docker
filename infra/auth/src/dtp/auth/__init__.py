@@ -416,13 +416,13 @@ def update_current_user_info(
     new_user_info: UpdateUserInfoRequest,
 ) -> UserInfo:
     """Endpoint to update current user info."""
-    logger.info(
-        "User '%s' (%s) is attempting to update their user info.", user.user_name, user.user_id
-    )
-
     # CheckRole(None) ensures the user is authenticated
     if not new_user_info.new_username and not new_user_info.new_password:
-        logger.warning("No changes specified for user '%s' (%s).", user.user_name, user.user_id)
+        logger.warning(
+            "Attempt to update user info for '%s' (%s), but no changes specified.",
+            user.user_name,
+            user.user_id,
+        )
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="No changes specified",
@@ -430,7 +430,9 @@ def update_current_user_info(
 
     if not new_user_info.current_password:
         logger.warning(
-            "Current password not provided for user '%s' (%s).", user.user_name, user.user_id
+            "Attempt to update user info for '%s' (%s), but current password not provided.",
+            user.user_name,
+            user.user_id,
         )
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -438,7 +440,9 @@ def update_current_user_info(
         )
     if not check_password(new_user_info.current_password, user.password_hash):
         logger.warning(
-            "Incorrect current password provided for user '%s' (%s).", user.user_name, user.user_id
+            "Attempt to update user info for '%s' (%s), but incorrect current password provided.",
+            user.user_name,
+            user.user_id,
         )
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -1026,13 +1030,6 @@ def assign_role_to_user(
     admin_user: Annotated[users.User, Depends(CheckRole("admin"))],
 ) -> UserInfo:
     """Endpoint to assign a role to a user.  Admin only."""
-    logger.info(
-        "Admin '%s' (%s) is assigning role '%s' to user ID '%s'.",
-        admin_user.user_name,
-        admin_user.user_id,
-        role_name,
-        user_id,
-    )
     query_user = select(users.User).where(users.User.user_id == user_id)
     user = session.exec(query_user).one_or_none()
     if not user:
@@ -1065,12 +1062,12 @@ def assign_role_to_user(
 
     if role in user.roles:
         logger.info(
-            "User '%s' (%s) already has role '%s'; no action taken by admin '%s' (%s).",
-            user.user_name,
-            user.user_id,
-            role_name,
+            "Admin '%s' (%s) attempted to assign role '%s' to user ID '%s', but the user "
+            "already has this role.",
             admin_user.user_name,
             admin_user.user_id,
+            role_name,
+            user_id,
         )
     else:
         try:
@@ -1136,13 +1133,6 @@ def remove_role_from_user(
             detail="Role name cannot be empty",
         )
 
-    logger.info(
-        "Admin '%s' (%s) is removing role '%s' from user ID '%s'.",
-        admin_user.user_name,
-        admin_user.user_id,
-        role_name,
-        user_id,
-    )
     query_user = select(users.User).where(users.User.user_id == user_id)
     user = session.exec(query_user).one_or_none()
 
@@ -1191,7 +1181,7 @@ def remove_role_from_user(
 
     # Check if user has the role
     if role not in user.roles:
-        logger.info(
+        logger.warning(
             "Admin '%s' (%s) attempted to remove role '%s' from user '%s' (%s), but user does "
             "not have the role.",
             admin_user.user_name,
