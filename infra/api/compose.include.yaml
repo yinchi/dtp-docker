@@ -1,0 +1,37 @@
+services:
+  # Core FastAPI server for the DTP
+  api:
+    container_name: api
+    image: yinchi/dtp-api
+    build:
+      # We use the Docker file in the current directory, but need the project root context
+      context: ../..
+      dockerfile: infra/api/Dockerfile
+    restart: always
+    environment:
+      # Database settings
+      # The service name, not the container name
+      DTP_DB_HOSTNAME: timescaledb
+      DTP_DB_PORT: ${POSTGRES_PORT}
+      DTP_DB_NAME: ${PG_DB}
+      DTP_DB_USERNAME: ${PG_USER}
+      DTP_DB_PASSWORD: ${PG_USER_PASSWORD}
+      # API host settings
+      DTP_API_HOST: ${DTP_HOST}
+      DTP_API_ROOTPATH: /api
+    healthcheck:
+      test: ["CMD", "wget", "-qO", "/dev/null", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 5
+      start_period: 30s
+      start_interval: 5s
+    labels:
+      dtp.description: >-
+        Core FastAPI server for the Digital Twin Platfrom.
+      dtp.category: infra
+      dtp.urls.docs: ${DTP_HOST}:${TRAEFIK_PORT}/api/docs
+      traefik.enable: true
+      traefik.http.routers.api.rule: PathPrefix(`/api`)
+      traefik.http.routers.api.middlewares: api-stripprefix
+      traefik.http.middlewares.api-stripprefix.stripprefix.prefixes: /api

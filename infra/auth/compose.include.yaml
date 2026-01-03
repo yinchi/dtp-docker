@@ -1,8 +1,8 @@
 services:
-  # FastAPI server for Traefik ForwardAuth
-  forward-auth:
-    container_name: forward-auth
-    image: yinchi/dtp-forward-auth
+  # FastAPI server for authentication and user management
+  auth:
+    container_name: auth
+    image: yinchi/dtp-auth
     build:
       # We use the Docker file in the current directory, but need the project root context
       context: ../..
@@ -31,10 +31,10 @@ services:
       start_interval: 5s
     labels:
       dtp.description: >-
-        Target server for Traefik ForwardAuth.
+        FastAPI server for authentication and user management.
       dtp.category: infra
-      dtp.urls.web: ${DTP_HOST}:${TRAEFIK_PORT}/auth
+      dtp.urls.docs: ${DTP_HOST}:${TRAEFIK_PORT}/auth/docs
       traefik.enable: true
-      traefik.http.routers.forward-auth.rule: PathPrefix(`/auth`)
-      traefik.http.routers.forward-auth.middlewares: forward-auth-stripprefix
-      traefik.http.middlewares.forward-auth-stripprefix.stripprefix.prefixes: /auth
+      traefik.http.routers.auth.rule: PathPrefix(`/auth`)
+      traefik.http.routers.auth.middlewares: auth-stripprefix
+      traefik.http.middlewares.auth-stripprefix.stripprefix.prefixes: /auth

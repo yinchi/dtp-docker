@@ -46,7 +46,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 		}
 
 		try {
-			const res = await fetch(`${hostURL}/auth/user/me`, {
+			const res = await fetch(`${hostURL}/auth/users/me`, {
 				headers: { accept: "application/json", Authorization: `Bearer ${bearerToken}` },
 				mode: "cors",
 			});

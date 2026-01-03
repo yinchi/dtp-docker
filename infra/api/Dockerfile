@@ -5,25 +5,25 @@ ENV UV_PYTHON_DOWNLOADS=0
 WORKDIR /app
 
 # Install third-party packages only
-# Note we need to mount ALL pyproject.toml files in the workspace and __init__.py of
-# dependencies (if any)
+# Note we need to mount ALL pyproject.toml files in the workspace and {README.md, __init__.py} of
+# dependencies
 RUN --mount=type=cache,target=/root/.cache/uv \
     --mount=type=bind,source=uv.lock,target=uv.lock \
     --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
     --mount=type=bind,source=infra/auth/pyproject.toml,target=infra/auth/pyproject.toml \
     --mount=type=bind,source=infra/api/pyproject.toml,target=infra/api/pyproject.toml \
-    uv sync --package dtp-docker-auth --locked --no-install-project --no-dev
+    uv sync --package dtp-docker-api --locked --no-install-project --no-dev
 
 # Copy in the lockfile, main pyproject.toml, and the current project
-# If we had dependencies, we would copy them in as well
+# Also copy all dependencies
 COPY ./uv.lock ./pyproject.toml /app/
-COPY ./infra/auth/ /app/infra/auth/
+COPY ./infra/api/ /app/infra/api/
 
 # Sync a second time with the actual code loaded
 # Mount all pyproject.toml files in the workspace, except the ones we copied
 RUN --mount=type=cache,target=/root/.cache/uv \
-    --mount=type=bind,source=infra/api/pyproject.toml,target=infra/api/pyproject.toml \
-    uv sync --package dtp-docker-auth --locked --no-dev
+    --mount=type=bind,source=infra/auth/pyproject.toml,target=infra/auth/pyproject.toml \
+    uv sync --package dtp-docker-api --locked --no-dev
 
 
 # Then, use a final image without uv
@@ -43,4 +43,4 @@ WORKDIR /app
 EXPOSE 8000
 
 # Run the FastAPI application by default
-CMD ["fastapi", "run", "--host", "0.0.0.0", "--port", "8000", "-e", "dtp.auth:app"]
+CMD ["fastapi", "run", "--host", "0.0.0.0", "--port", "8000", "-e", "dtp.api:app"]

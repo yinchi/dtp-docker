@@ -5,6 +5,7 @@ requires-python = ">=3.14"
 [manifest]
 members = [
     "dtp-docker",
+    "dtp-docker-api",
     "dtp-docker-auth",
 ]
 
@@ -143,6 +144,31 @@ wheels = [
 name = "dtp-docker"
 version = "0.1.0"
 source = { virtual = "." }
+
+[[package]]
+name = "dtp-docker-api"
+version = "0.1.0"
+source = { editable = "infra/api" }
+dependencies = [
+    { name = "dotenv" },
+    { name = "fastapi", extra = ["standard"] },
+    { name = "psycopg" },
+    { name = "pydantic" },
+    { name = "pydantic-settings" },
+    { name = "sqlmodel" },
+    { name = "timescaledb" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "dotenv", specifier = ">=0.9.9" },
+    { name = "fastapi", extras = ["standard"], specifier = ">=0.122.0" },
+    { name = "psycopg", specifier = ">=3.2.13" },
+    { name = "pydantic", specifier = ">=2.12.5" },
+    { name = "pydantic-settings", specifier = ">=2.12.0" },
+    { name = "sqlmodel", specifier = ">=0.0.27" },
+    { name = "timescaledb", specifier = ">=0.0.4" },
+]
 
 [[package]]
 name = "dtp-docker-auth"

@@ -3,7 +3,7 @@ http:
   middlewares:
     auth:
       forwardAuth:
-        address: "http://forward-auth:8000/user/me"
+        address: "http://auth:8000/users/me"
         trustForwardHeader: true
         authRequestHeaders:
         - "Authorization"

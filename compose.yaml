@@ -3,6 +3,7 @@ include:
 - dataingress/mosquitto/compose.include.yaml
 - datastore/timescaledb/compose.include.yaml
 - infra/auth/compose.include.yaml
+- infra/api/compose.include.yaml
 - infra/frontend/compose.include.yaml
 - infra/traefik/compose.include.yaml
 - infra/whoami/compose.include.yaml

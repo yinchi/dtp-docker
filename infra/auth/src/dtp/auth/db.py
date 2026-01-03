@@ -12,6 +12,8 @@ from pydantic_settings import BaseSettings
 from sqlmodel import Session, select
 from timescaledb.engine import create_engine
 
+logger = logging.getLogger("uvicorn.access")
+
 
 class Settings(BaseSettings):
     """Settings for the Digital Twin Platform database connection."""
@@ -70,72 +72,77 @@ def check_password(password: str, hashed: str) -> bool:
 
 def setup_db() -> None:
     """Initialize the database schema."""
-    from dtp.models import users  # noqa: F401,PLC0415
+    from dtp.auth.models import users  # noqa: F401,PLC0415
 
     sqlmodel.SQLModel.metadata.create_all(engine, checkfirst=True)
     timescaledb.metadata.create_all(engine)
 
     with Session(engine) as session:
-        query_user = select(users.User).where(users.User.user_name == "admin")
-        admin_user = session.exec(query_user).one_or_none()
+        try:
+            query_user = select(users.User).where(users.User.user_name == "admin")
+            admin_user = session.exec(query_user).one_or_none()
 
-        # Ensure the 'admin' user exists
-        if admin_user is None:
-            admin_user = users.User(
-                user_name="admin",
-                password_hash=hash_password(settings.db_bootstrap_admin_password),
-            )
-            session.add(admin_user)
-            session.commit()
-            session.refresh(admin_user)
-            logging.info(
-                "Created user '%s' user in the database (%s).",
-                admin_user.user_name,
-                admin_user.user_id,
-            )
-        else:
-            logging.info(
-                "Admin user '%s' already exists in the database (%s).",
-                admin_user.user_name,
-                admin_user.user_id,
-            )
+            # Ensure the 'admin' user exists
+            if admin_user is None:
+                admin_user = users.User(
+                    user_name="admin",
+                    password_hash=hash_password(settings.db_bootstrap_admin_password),
+                )
+                session.add(admin_user)
+                session.commit()
+                session.refresh(admin_user)
+                logging.info(
+                    "Created user '%s' user in the database (%s).",
+                    admin_user.user_name,
+                    admin_user.user_id,
+                )
+            else:
+                logging.info(
+                    "Admin user '%s' already exists in the database (%s).",
+                    admin_user.user_name,
+                    admin_user.user_id,
+                )
 
-        # Ensure the 'admin' role exists
-        query_role = select(users.Role).where(users.Role.role_name == "admin")
-        admin_role = session.exec(query_role).one_or_none()
-        if admin_role is None:
-            admin_role = users.Role(role_name="admin")
-            session.add(admin_role)
-            session.commit()
-            session.refresh(admin_role)
-            logging.info(
-                "Created role '%s' role in the database (%s).",
-                admin_role.role_name,
-                admin_role.role_id,
-            )
-        else:
-            logging.info(
-                "Admin role '%s' already exists in the database (%s).",
-                admin_role.role_name,
-                admin_role.role_id,
-            )
+            # Ensure the 'admin' role exists
+            query_role = select(users.Role).where(users.Role.role_name == "admin")
+            admin_role = session.exec(query_role).one_or_none()
+            if admin_role is None:
+                admin_role = users.Role(role_name="admin")
+                session.add(admin_role)
+                session.commit()
+                session.refresh(admin_role)
+                logging.info(
+                    "Created role '%s' role in the database (%s).",
+                    admin_role.role_name,
+                    admin_role.role_id,
+                )
+            else:
+                logging.info(
+                    "Admin role '%s' already exists in the database (%s).",
+                    admin_role.role_name,
+                    admin_role.role_id,
+                )
 
-        # Ensure the 'admin' user has the 'admin' role
-        # Since we set `back_populates` on both sides, we can just append to one side
-        if admin_role not in admin_user.roles:
-            admin_user.roles.append(admin_role)
-            session.add(admin_user)
-            session.commit()
-            session.refresh(admin_user)
-            session.refresh(admin_role)
-            logging.info(
-                "Assigned role '%s' to user '%s' in the database.",
-                admin_role.role_name,
-                admin_user.user_name,
-            )
-        else:
-            logging.info(
-                "User '%s' already has role '%s' assigned in the database.",
-                admin_user.user_name,
-                admin_role.role_name,
-            )
+            # Ensure the 'admin' user has the 'admin' role
+            # Since we set `back_populates` on both sides, we can just append to one side
+            if admin_role not in admin_user.roles:
+                admin_user.roles.append(admin_role)
+                session.add(admin_user)
+                session.commit()
+                session.refresh(admin_user)
+                session.refresh(admin_role)
+                logging.info(
+                    "Assigned role '%s' to user '%s' in the database.",
+                    admin_role.role_name,
+                    admin_user.user_name,
+                )
+            else:
+                logging.info(
+                    "User '%s' already has role '%s' assigned in the database.",
+                    admin_user.user_name,
+                    admin_role.role_name,
+                )
+        except Exception as e:
+            session.rollback()
+            logger.error("Failed to set up the database schema: %s", str(e))
+            raise e
