@@ -3,10 +3,11 @@ http:
   middlewares:
     auth:
       forwardAuth:
-        address: "http://auth:8000/users/me"
+        address: "https://dtp-docker.tail899731.ts.net/auth/users/me"
         trustForwardHeader: true
         authRequestHeaders:
         - "Authorization"
+        - "Cookie"
         authResponseHeaders:
         - "X-Auth-User-ID"
         - "X-Auth-Roles"

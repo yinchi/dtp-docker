@@ -2,6 +2,7 @@ import "@mantine/core/styles.css";
 import { Button, Group, PasswordInput, Stack, TextInput, Title } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useState } from "react";
+import { useAuth } from "../components/AuthProvider";
 import MyAppShell from "../components/MyAppShell";
 import { hostURL } from "../config";
 
@@ -18,6 +19,7 @@ function LoginApp() {
 function LoginMain() {
 	// Used to disable the button when a callback is processing
 	const [loading, setLoading] = useState(false);
+	const { refresh } = useAuth();
 
 	const form = useForm({
 		mode: "uncontrolled",
@@ -39,11 +41,17 @@ function LoginMain() {
 
 		const fetchResult = await fetch(`${hostURL}/auth/token`, {
 			method: "POST",
+			mode: "cors",
+			credentials: "include",
 			headers: {
 				accept: "application/json",
 				"Content-Type": "application/x-www-form-urlencoded",
 			},
-			body: `grant_type=password&username=${userName}&password=${rawPassword}`,
+			body: new URLSearchParams({
+				grant_type: "password",
+				username: userName,
+				password: rawPassword,
+			}),
 		})
 			.then(async (response) => {
 				const content = await response.json();
@@ -59,14 +67,8 @@ function LoginMain() {
 
 		if (fetchResult?.status === 200) {
 			// Successful login
-			const accessToken = fetchResult?.content?.access_token;
-			if (typeof accessToken === "string" && accessToken.trim().length > 0) {
-				sessionStorage.setItem("accessToken", accessToken);
-				window.location.href = `/`;
-			} else {
-				form.setErrors({ password: "An unknown error occured." });
-				return;
-			}
+			await refresh();
+			window.location.href = `/`;
 		} else {
 			form.setErrors({ password: fetchResult?.content?.detail ?? "An unknown error occured." });
 		}

@@ -20,7 +20,6 @@ export interface User {
 type AuthState = {
 	user: User | null;
 	loaded: boolean;
-	authFetch: (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>; // Wrapper for authenticated fetch
 	refresh: () => Promise<void>; // (Re)validate the bearer token
 	logout: () => void; // Delete the bearer token
 };
@@ -39,19 +38,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 	 * (or `fetch` fails).
 	 */
 	const refresh = useCallback(async () => {
-		const bearerToken = sessionStorage.getItem("accessToken");
-		if (!bearerToken) {
-			setUser(null);
-			return;
-		}
-
 		try {
 			const res = await fetch(`${hostURL}/auth/users/me`, {
-				headers: { accept: "application/json", Authorization: `Bearer ${bearerToken}` },
+				headers: { accept: "application/json" },
 				mode: "cors",
+				credentials: "include",
 			});
-			setUser(res.ok ? ((await res.json()) as User) : null);
-		} catch {
+			if (!res.ok) {
+				console.warn("/auth/users/me returned", res.status);
+				setUser(null);
+				return;
+			}
+			setUser((await res.json()) as User);
+		} catch (err) {
+			console.error("/auth/users/me fetch failed", err);
 			setUser(null);
 		}
 	}, []);
@@ -63,42 +63,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 	/** Log the user out by deleting the stored bearer token, and redirect user to /login. */
 	const logout = useCallback(() => {
-		sessionStorage.removeItem("accessToken");
-		setUser(null);
-		window.location.href = "/login";
+		fetch(`${hostURL}/auth/logout`, {
+			method: "POST",
+			mode: "cors",
+			credentials: "include",
+			headers: { accept: "application/json" },
+		}).finally(() => {
+			setUser(null);
+			window.location.href = "/login";
+		});
 	}, []);
 
-	/** Wraps a `fetch` call to add an Authorization header. */
-	const authFetch = useCallback(
-		async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
-			const bearerToken = sessionStorage.getItem("accessToken");
-
-			const nextInit: RequestInit = { ...init };
-			const headers = new Headers(init?.headers);
-
-			// Set CORS unless a fetch mode has already been explicitly set
-			nextInit.mode = init?.mode ?? "cors";
-
-			// Default accept header if not already set
-			if (!headers.has("accept")) {
-				headers.set("accept", "application/json");
-			}
-
-			// Add bearer token authorization
-			if (bearerToken) {
-				headers.set("Authorization", `Bearer ${bearerToken}`);
-			}
-
-			nextInit.headers = headers;
-
-			return fetch(input, nextInit);
-		},
-		[],
-	);
-
 	const value = useMemo<AuthState>(
-		() => ({ user, loaded, authFetch, refresh, logout }),
-		[user, loaded, authFetch, refresh, logout],
+		() => ({ user, loaded, refresh, logout }),
+		[user, loaded, refresh, logout],
 	);
 
 	return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

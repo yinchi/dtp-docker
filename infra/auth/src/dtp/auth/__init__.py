@@ -139,7 +139,35 @@ app = FastAPI(
         # "supportedSubmitMethods": [],  # Disable "Try it out" button
     },
 )
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+
+ACCESS_TOKEN_COOKIE_NAME = "accessToken"
+
+
+class OAuth2PasswordBearerWithCookie(OAuth2PasswordBearer):
+    """OAuth2PasswordBearer that also accepts a bearer token in a cookie.
+
+    This keeps FastAPI's OAuth2 security scheme (OpenAPI/Swagger) while allowing
+    browser clients to authenticate using an HttpOnly cookie.
+    """
+
+    def __init__(self, *args, cookie_name: str = ACCESS_TOKEN_COOKIE_NAME, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.cookie_name = cookie_name
+
+    async def __call__(self, request: Request) -> str:
+        """Fetch the bearer token from the cookie (first) or the Authorization header (fallback)."""
+        cookie_token = request.cookies.get(self.cookie_name)
+        if cookie_token and cookie_token.strip():
+            return cookie_token
+
+        # Fall back to standard Authorization: Bearer <token>
+        return await super().__call__(request)
+
+
+oauth2_scheme = OAuth2PasswordBearerWithCookie(
+    tokenUrl="token",
+    cookie_name=ACCESS_TOKEN_COOKIE_NAME,
+)
 
 
 @app.middleware("http")
@@ -203,6 +231,7 @@ def health_check() -> str:
 def login(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     session: Annotated[Session, Depends(get_session)],
+    response: Response,
 ) -> GetTokenResponse:
     """Endpoint for user login and token generation."""
     query = select(users.User).where(users.User.user_name == form_data.username)
@@ -243,7 +272,36 @@ def login(
         user.user_name,
         user.user_id,
     )
+
+    # Also set the JWT as an HttpOnly cookie so the browser can send it automatically.
+    # Note: For cross-site cookies you may need SameSite=None and Secure=True.
+    response.set_cookie(
+        key=ACCESS_TOKEN_COOKIE_NAME,
+        value=jwt,
+        httponly=True,
+        secure=dtp_host.startswith("https://"),
+        samesite="lax",
+        path="/",
+    )
     return GetTokenResponse(access_token=jwt, token_type="bearer")
+
+
+@app.post("/logout", tags=["token"])
+def logout(response: Response):
+    """Clear the access token cookie.
+
+    This is required for HttpOnly cookies, since the frontend cannot delete them directly.
+    """
+    response.set_cookie(
+        key=ACCESS_TOKEN_COOKIE_NAME,
+        value="",
+        httponly=True,
+        secure=dtp_host.startswith("https://"),
+        samesite="lax",
+        path="/",
+        max_age=0,
+    )
+    return {"detail": "logged out"}
 
 
 class CheckRole:

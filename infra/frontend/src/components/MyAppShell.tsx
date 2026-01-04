@@ -1,4 +1,4 @@
-import { AppShell, Button, Group, MantineProvider, Text } from "@mantine/core";
+import { Anchor, AppShell, Button, Group, MantineProvider, Text } from "@mantine/core";
 import { type ReactNode, useEffect } from "react";
 import { AuthProvider, useAuth } from "./AuthProvider";
 
@@ -38,9 +38,9 @@ function MyAppShellInner({ children }: { children: ReactNode }) {
 		<AppShell padding={"md"} header={{ height: headerHeight }} footer={{ height: footerHeight }}>
 			<AppShell.Header bg={"dark"}>
 				<Group c={"white"} px={"md"} py={"sm"} justify="space-between">
-					<Text size={"xl"} fw={900}>
+					<Anchor href="/" fz={"xl"} fw={900} c={"white"}>
 						Digital Twin Platform Demo
-					</Text>
+					</Anchor>
 					<Group>
 						{user ? (
 							<>
