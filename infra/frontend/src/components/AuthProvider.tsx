@@ -7,7 +7,6 @@ import {
 	useMemo,
 	useState,
 } from "react";
-import { hostURL } from "../config";
 
 /** Represents an authenticated user. */
 export interface User {
@@ -39,9 +38,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 	 */
 	const refresh = useCallback(async () => {
 		try {
-			const res = await fetch(`${hostURL}/auth/users/me`, {
+			const res = await fetch(`/auth/users/me`, {
 				headers: { accept: "application/json" },
-				mode: "cors",
 				credentials: "include",
 			});
 			if (!res.ok) {
@@ -63,9 +61,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 	/** Log the user out by deleting the stored bearer token, and redirect user to /login. */
 	const logout = useCallback(() => {
-		fetch(`${hostURL}/auth/logout`, {
+		fetch(`/auth/logout`, {
 			method: "POST",
-			mode: "cors",
 			credentials: "include",
 			headers: { accept: "application/json" },
 		}).finally(() => {

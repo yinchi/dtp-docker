@@ -3,7 +3,6 @@ import { Anchor, Badge, Button, Card, Group, Stack, Text, Title } from "@mantine
 import { type ReactNode, useEffect, useState } from "react";
 import { useAuth } from "../components/AuthProvider";
 import MyAppShell from "../components/MyAppShell";
-import { hostURL } from "../config";
 
 /** Top-level React component for the main webpage. */
 function MainApp() {
@@ -26,9 +25,8 @@ function Main() {
 
 	useEffect(() => {
 		if (loaded && user) {
-			fetch(`${hostURL}/whoami`, {
+			fetch(`/whoami`, {
 				headers: { accept: "text/plain" },
-				mode: "cors",
 				credentials: "include",
 			})
 				.then(async (res) => {

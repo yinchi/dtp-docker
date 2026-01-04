@@ -4,7 +4,6 @@ import { useForm } from "@mantine/form";
 import { useState } from "react";
 import { useAuth } from "../components/AuthProvider";
 import MyAppShell from "../components/MyAppShell";
-import { hostURL } from "../config";
 
 /** Top-level React component for the login webpage. */
 function LoginApp() {
@@ -39,9 +38,8 @@ function LoginMain() {
 
 		const { userName, password: rawPassword } = form.getValues();
 
-		const fetchResult = await fetch(`${hostURL}/auth/token`, {
+		const fetchResult = await fetch(`/auth/token`, {
 			method: "POST",
-			mode: "cors",
 			credentials: "include",
 			headers: {
 				accept: "application/json",

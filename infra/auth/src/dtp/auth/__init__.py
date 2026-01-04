@@ -9,7 +9,6 @@ from uuid import NIL, UUID, uuid7
 
 from dotenv import find_dotenv
 from fastapi import Depends, FastAPI, HTTPException, Path, Query, Request, Response, status
-from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import PlainTextResponse
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose.exceptions import ExpiredSignatureError, JOSEError
@@ -180,32 +179,6 @@ async def disable_caching(request: Request, call_next):
     return response
 
 
-# Configure CORS middleware
-#
-# `dtp_host` is the external hostname of the DTP backend, e.g.,
-# https://dtp-docker.tailxxxxxx.ts.net or https://dtp.example.com.
-# Note that `tailscale serve` is required to expose the service to the Tailnet if using Tailscale.
-#
-# To allow for multiple services, we expect that the frontend will be served via Traefik
-# at the root path (/), and the backend API at /api/ (but also available on port 8000
-# during development and testing).
-#
-# Note that `dtp_host` may be HTTPS, with upstream TLS termination.
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",  # Development server for Vite frontend
-        "http://dtp-docker:5173",  # Development server for Vite frontend (LAN or mDNS)
-        "http://localhost:8000",  # Development server for backend API
-        "http://dtp-docker:8000",  # Development server for backend API (LAN or mDNS)
-        "http://localhost",  # Traefik proxy for Docker deployment
-        "http://dtp-docker",  # Traefik proxy for Docker deployment (LAN or mDNS)
-        dtp_host,  # Traefik proxy for Docker deployment (external)
-    ],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 # endregion fastapi
 
 
