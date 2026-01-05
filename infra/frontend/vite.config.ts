@@ -1,19 +1,16 @@
-import { dirname, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import path from "node:path";
 import react from "@vitejs/plugin-react";
+import { globSync } from "glob";
 import { defineConfig } from "vite";
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-
-// https://vite.dev/config/
 export default defineConfig({
+	root: path.resolve(__dirname, "src/pages"),
 	plugins: [react()],
 	build: {
+		outDir: path.resolve(__dirname, "dist"),
+		emptyOutDir: true,
 		rollupOptions: {
-			input: {
-				main: resolve(__dirname, "index.html"),
-				login: resolve(__dirname, "login.html"),
-			},
+			input: globSync(path.resolve(__dirname, "src/pages", "*.html")),
 		},
 	},
 });

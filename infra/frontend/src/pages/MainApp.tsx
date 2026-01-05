@@ -80,7 +80,7 @@ function Main() {
 					</Text>
 				</ButtonCard>
 				{commonString(user?.roles, ["admin", "users:admin"]) ? (
-					<ButtonCard href="/user-admin" color="cyan" title="User administration">
+					<ButtonCard href="/user_admin" color="cyan" title="User administration">
 						<Text>
 							Add/
 							<wbr />

@@ -17,8 +17,8 @@
 		"@mantine/hooks": "^8.3.9",
 		"@mantine/modals": "^8.3.9",
 		"dayjs": "^1.11.19",
+		"glob": "^13.0.0",
 		"react": "^19.2.0",
-		"react-cookie": "^8.0.1",
 		"react-dom": "^19.2.0",
 		"recharts": "^3.5.1"
 	},
