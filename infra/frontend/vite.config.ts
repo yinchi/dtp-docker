@@ -10,7 +10,15 @@ export default defineConfig({
 		outDir: path.resolve(__dirname, "dist"),
 		emptyOutDir: true,
 		rollupOptions: {
-			input: globSync(path.resolve(__dirname, "src/pages", "*.html")),
+			input: Object.fromEntries(
+				globSync(path.resolve(__dirname, "src/pages", "**/*.html")).map((absPath) => {
+					const relFromPagesRoot = path
+						.relative(path.resolve(__dirname, "src/pages"), absPath)
+						.replaceAll(path.sep, "/");
+					const key = relFromPagesRoot.replace(/\.html$/i, "");
+					return [key, absPath];
+				}),
+			),
 		},
 	},
 });

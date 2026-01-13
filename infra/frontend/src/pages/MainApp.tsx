@@ -1,11 +1,12 @@
 import "@mantine/core/styles.css";
-import { Anchor, Badge, Button, Card, Group, Stack, Text, Title } from "@mantine/core";
+import { Anchor, Button, Card, Group, Stack, Text, Title } from "@mantine/core";
 import { type ReactNode, useEffect, useState } from "react";
 import { useAuth } from "../components/AuthProvider";
 import MyAppShell from "../components/MyAppShell";
+import { commonString, userBadges } from "../util";
 
 /** Top-level React component for the main webpage. */
-function MainApp() {
+function MainApp(): ReactNode {
 	return (
 		<MyAppShell>
 			<Main />
@@ -14,7 +15,7 @@ function MainApp() {
 }
 
 /** Main content for the main webpage. */
-function Main() {
+function Main(): ReactNode {
 	const { user, loaded } = useAuth();
 	const [roleBadges, setRoleBadges] = useState<ReactNode | null>(null);
 	const [whoami, setWhoami] = useState<ReactNode | null>(null);
@@ -41,17 +42,7 @@ function Main() {
 							<pre>{await res.text()}</pre>
 						</Stack>,
 					);
-					setRoleBadges(
-						user.roles.length > 0 ? (
-							user.roles.map((role) => (
-								<Badge key={`roleBadge-${role}`} color="cyan">
-									{role}
-								</Badge>
-							))
-						) : (
-							<Text>(None)</Text>
-						),
-					);
+					setRoleBadges(userBadges(user));
 				})
 				.catch(() =>
 					setWhoami(
@@ -106,7 +97,7 @@ function ButtonCard({
 	color: string;
 	title: string;
 	children?: ReactNode;
-}) {
+}): ReactNode {
 	return (
 		<Anchor href={href} m={0} p={0} display="block" h="100%" style={{ alignSelf: "stretch" }}>
 			<Button
@@ -128,15 +119,6 @@ function ButtonCard({
 			</Button>
 		</Anchor>
 	);
-}
-
-/** Returns true if `arr1` and `arr2` share a common string, or undefined if either
- * argument is undefined.
- */
-function commonString(arr1?: string[], arr2?: string[]) {
-	if (!arr1 || !arr2) return undefined;
-	const set2 = new Set(arr2);
-	return arr1.some((val) => set2.has(val));
 }
 
 export default MainApp;

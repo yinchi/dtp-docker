@@ -738,6 +738,44 @@ def create_new_user(
     )
 
 
+@app.get(
+    "/users/{user_id}",
+    summary="Get a single user by ID",
+    tags=["users"],
+)
+def get_user(
+    user_id: Annotated[UUID, Path(description="ID of the user to delete")],
+    session: Annotated[Session, Depends(get_session)],
+    admin_user: Annotated[users.User, Depends(CheckRole("admin"))],
+) -> UserInfo:
+    """Endpoint to fetch a single user by ID.  Admin only."""
+    query = select(users.User).where(users.User.user_id == user_id)
+    user = session.exec(query).one_or_none()
+    if not user:
+        logger.warning(
+            "Admin '%s' (%s) attempted to fetch non-existent user (%s).",
+            admin_user.user_name,
+            admin_user.user_id,
+            user_id,
+        )
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found",
+        )
+    logger.info(
+        "Admin '%s' (%s) fetched user '%s' (%s).",
+        admin_user.user_name,
+        admin_user.user_id,
+        user.user_name,
+        user.user_id,
+    )
+    return UserInfo(
+        user_id=str(user.user_id),
+        user_name=user.user_name,
+        roles=[role.role_name for role in user.roles],
+    )
+
+
 @app.delete(
     "/users/{user_id}",
     summary="Delete a user",
@@ -766,6 +804,8 @@ def delete_user(
     if user.user_name == "admin":
         logger.warning(
             "Attempt by '%s' (%s) to delete the reserved 'admin' user.",
+            admin_user.user_name,
+            admin_user.user_id,
         )
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,

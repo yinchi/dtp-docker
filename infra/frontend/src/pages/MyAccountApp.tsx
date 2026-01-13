@@ -1,13 +1,14 @@
 import "@mantine/core/styles.css";
-import { Badge, Button, Group, PasswordInput, Stack, Table, Text, Title } from "@mantine/core";
+import { Anchor, Button, Group, PasswordInput, Stack, Table, Text, Title } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { ModalsProvider, modals } from "@mantine/modals";
 import { type ReactNode, useEffect, useState } from "react";
 import { useAuth } from "../components/AuthProvider";
 import MyAppShell from "../components/MyAppShell";
+import { userBadges } from "../util";
 
 /** Top-level React component for the login webpage. */
-export default function MyAccountApp() {
+export default function MyAccountApp(): ReactNode {
 	return (
 		<MyAppShell>
 			<ModalsProvider>
@@ -17,7 +18,7 @@ export default function MyAccountApp() {
 	);
 }
 
-function MyAccountMain() {
+function MyAccountMain(): ReactNode {
 	const { user, loaded } = useAuth();
 	const [userInfoTable, setUserInfoTable] = useState<ReactNode | null>(null);
 	const [submitting, setSubmitting] = useState(false);
@@ -88,7 +89,7 @@ function MyAccountMain() {
 		});
 
 	/** Handle submission of password change form. */
-	async function changePassword() {
+	async function changePassword(): Promise<void> {
 		setSubmitting(true);
 
 		const { oldPassword, newPassword } = form.getValues();
@@ -135,17 +136,7 @@ function MyAccountMain() {
 						</Table.Tr>
 						<Table.Tr>
 							<Table.Th fw={900}>User roles:</Table.Th>
-							<Table.Td>
-								{user.roles.length > 0 ? (
-									user.roles.map((role) => (
-										<Badge key={`roleBadge-${role}`} color="cyan">
-											{role}
-										</Badge>
-									))
-								) : (
-									<>(None)</>
-								)}
-							</Table.Td>
+							<Table.Td>{userBadges(user)}</Table.Td>
 						</Table.Tr>
 					</Table>
 				</Group>,
@@ -155,6 +146,9 @@ function MyAccountMain() {
 
 	return (
 		<Stack m={0} p={0} gap={"md"}>
+			<Text>
+				<Anchor href="/">🏠 Home</Anchor>&nbsp;/
+			</Text>
 			<Title order={1}>My Account</Title>
 			{userInfoTable}
 			<form onSubmit={form.onSubmit(changePassword)}>

@@ -38,7 +38,7 @@ function LoginMain() {
 
 		const { userName, password: rawPassword } = form.getValues();
 
-		const fetchResult = await fetch(`/auth/token`, {
+		const fetchResult = await fetch("/auth/token", {
 			method: "POST",
 			credentials: "include",
 			headers: {
